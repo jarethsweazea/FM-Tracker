@@ -71,10 +71,9 @@ for project in project_names:
     with st.expander(label=f"{project}", expanded=False):
         status_tag = f"<span style='background-color:{color};color:white;padding:3px 8px;margin-right:10px;border-radius:4px;font-size:13px'>{project_data['STATUS']}</span>"
         st.markdown(f"{status_tag}", unsafe_allow_html=True)
-        st.markdown(f"**Phase:** {project_data['Phase']}")
-        st.markdown(f"**Status:** {project_data['STATUS']}")
         st.markdown(f"**Recent Update:** {project_data['Recent Status Update']}")
         st.markdown(f"**Project Summary:** {project_data['Project Summary']}")
+        st.markdown(f"**Phase:** {project_data['Phase']}")
         st.markdown(f"**WO #:** {project_data['WO#']}")
         st.markdown(f"**Initial Work Date:** {project_data['Initial Work Date']}")
         st.markdown(f"**Expected Completion:** {project_data['Expected Completion Date']}")
