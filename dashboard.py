@@ -68,8 +68,9 @@ project_names = filtered_df["Project Name"].unique()
 for project in project_names:
     project_data = filtered_df[filtered_df["Project Name"] == project].iloc[0]
     color = get_status_color(project_data["STATUS"])
-    status_tag = f"<span style='background-color:{color};color:white;padding:3px 8px;margin-right:10px;border-radius:4px;font-size:13px'>{project_data['STATUS']}</span>"
-    with st.expander(label=f"{status_tag} {project}", expanded=False):
+    with st.expander(label=f"{project}", expanded=False):
+        status_tag = f"<span style='background-color:{color};color:white;padding:3px 8px;margin-right:10px;border-radius:4px;font-size:13px'>{project_data['STATUS']}</span>"
+        st.markdown(f"{status_tag}", unsafe_allow_html=True)
         st.markdown(f"**Phase:** {project_data['Phase']}")
         st.markdown(f"**Status:** {project_data['STATUS']}")
         st.markdown(f"**Recent Update:** {project_data['Recent Status Update']}")
