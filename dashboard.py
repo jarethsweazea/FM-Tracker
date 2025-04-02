@@ -7,6 +7,7 @@ df = pd.read_excel("FM - West _ Project Tracker.xlsx", sheet_name="Project Track
 
 # Rename key columns for clarity
 df = df.rename(columns={
+    df.columns[0]: "STATUS",
     df.columns[1]: "Phase",
     df.columns[2]: "Recent Status Update",
     df.columns[3]: "Region",
@@ -27,6 +28,7 @@ df = df.rename(columns={
     df.columns[28]: "Completion Status",
     df.columns[29]: "Completion Photos",
 })
+
 
 # Drop any rows that don't have a Facility or Project Name
 df = df.dropna(subset=["Facility", "Project Name"])
