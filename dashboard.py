@@ -61,10 +61,12 @@ def get_status_color(status):
     return status_colors.get(status, "#CCCCCC")
 
 # Legend
-st.markdown("### Status Legend")
-legend_cols = st.columns(len(status_colors))
-for i, (status, color) in enumerate(status_colors.items()):
-    legend_cols[i].markdown(f"<div style='background-color:{color};padding:4px 10px;border-radius:4px;color:white;text-align:center;font-size:14px'>{status}</div>", unsafe_allow_html=True)
+st.markdown("<h4>Status Legend</h4>", unsafe_allow_html=True)
+legend_html = "".join([
+    f"<span style='background-color:{color};color:white;padding:4px 10px;margin-right:10px;border-radius:4px;font-size:12px'>{status}</span>"
+    for status, color in status_colors.items()
+])
+st.markdown(f"<div style='margin-bottom:16px'>{legend_html}</div>", unsafe_allow_html=True)
 
 # Main display: Table of Projects
 st.subheader(f"Projects at {selected_facility}" if selected_facility != "All" else "All Projects")
@@ -73,8 +75,8 @@ project_names = filtered_df["Project Name"].unique()
 for project in project_names:
     project_data = filtered_df[filtered_df["Project Name"] == project].iloc[0]
     color = get_status_color(project_data["STATUS"])
-    with st.expander(label=f"🛠️ {project}", expanded=False):
-        st.markdown(f"<div style='background-color:{color};padding:6px 12px;margin-bottom:12px;border-radius:4px;color:white;font-weight:bold;width:fit-content'>{project}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='background-color:{color};padding:8px 16px;margin-top:20px;border-radius:6px;color:white;font-weight:bold;font-size:16px'>{project}</div>", unsafe_allow_html=True)
+    with st.expander(label=f"View Details", expanded=False):
         st.markdown(f"**Phase:** {project_data['Phase']}")
         st.markdown(f"**Status:** {project_data['STATUS']}")
         st.markdown(f"**Recent Update:** {project_data['Recent Status Update']}")
@@ -90,4 +92,3 @@ for project in project_names:
 
 st.markdown("---")
 st.caption("Last updated manually from Excel. Live sync with Google Sheets available.")
-
