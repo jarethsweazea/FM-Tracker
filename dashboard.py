@@ -64,7 +64,7 @@ def get_status_color(status):
 st.markdown("### Status Legend")
 legend_cols = st.columns(len(status_colors))
 for i, (status, color) in enumerate(status_colors.items()):
-    legend_cols[i].markdown(f"<div style='background-color:{color};padding:6px;border-radius:4px;color:white;text-align:center'>{status}</div>", unsafe_allow_html=True)
+    legend_cols[i].markdown(f"<div style='background-color:{color};padding:4px 10px;border-radius:4px;color:white;text-align:center;font-size:14px'>{status}</div>", unsafe_allow_html=True)
 
 # Main display: Table of Projects
 st.subheader(f"Projects at {selected_facility}" if selected_facility != "All" else "All Projects")
@@ -73,8 +73,8 @@ project_names = filtered_df["Project Name"].unique()
 for project in project_names:
     project_data = filtered_df[filtered_df["Project Name"] == project].iloc[0]
     color = get_status_color(project_data["STATUS"])
-    with st.expander(f"🛠️ {project}", expanded=False):
-        st.markdown(f"<div style='background-color:{color};padding:8px 16px;border-radius:4px;color:white;display:inline-block'><strong>{project}</strong></div>", unsafe_allow_html=True)
+    with st.expander(label=f"🛠️ {project}", expanded=False):
+        st.markdown(f"<div style='background-color:{color};padding:6px 12px;margin-bottom:12px;border-radius:4px;color:white;font-weight:bold;width:fit-content'>{project}</div>", unsafe_allow_html=True)
         st.markdown(f"**Phase:** {project_data['Phase']}")
         st.markdown(f"**Status:** {project_data['STATUS']}")
         st.markdown(f"**Recent Update:** {project_data['Recent Status Update']}")
