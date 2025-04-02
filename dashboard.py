@@ -90,3 +90,4 @@ for project in project_names:
 
 st.markdown("---")
 st.caption("Last updated manually from Excel. Live sync with Google Sheets available.")
+
