@@ -40,9 +40,10 @@ for col in date_columns:
 st.set_page_config(page_title="West Region Project Dashboard", layout="wide")
 st.title("📍 West Region Project Tracker")
 
-# Sidebar filter
+# Sidebar filter as buttons
 facility_list = sorted(df["Facility"].unique())
-selected_facility = st.sidebar.selectbox("Select Facility", ["All"] + facility_list)
+all_facilities = ["All"] + facility_list
+selected_facility = st.sidebar.radio("Select Facility", all_facilities, index=0)
 
 if selected_facility != "All":
     filtered_df = df[df["Facility"] == selected_facility]
