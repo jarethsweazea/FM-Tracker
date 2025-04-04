@@ -79,6 +79,7 @@ def fetch_recent_requests():
         return pd.DataFrame(columns=["Project Name", "WO#", "Facility", "Status", "Timestamp"])
 
 log_df = fetch_recent_requests()
+log_df = log_df.copy()  # force Streamlit to treat this as a fresh reload every time
 
 # Main display: Table of Projects
 st.subheader(f"Projects at {selected_facility}" if selected_facility != "All" else "All Projects")
