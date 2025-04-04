@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import requests
+from datetime import datetime, timedelta
 
 # Load live Google Sheet as CSV
 sheet_url = "https://docs.google.com/spreadsheets/d/1FzLw6sHeLEed1e6ubijpjj2mNfG4B8UBJinO4KTe_ek/gviz/tq?tqx=out:csv&sheet=Project%20Tracker"
@@ -62,6 +64,16 @@ status_colors = {
 def get_status_color(status):
     return status_colors.get(status, "#CCCCCC")
 
+# Helper: Check if last update is older than 7 days
+def is_stale_update(update_text):
+    try:
+        date_part = update_text.strip().split(" ")[0].replace("-", "/")
+        update_date = datetime.strptime(date_part, "%m/%d")
+        update_date = update_date.replace(year=datetime.today().year)
+        return datetime.today() - update_date > timedelta(days=7)
+    except:
+        return False
+
 # Main display: Table of Projects
 st.subheader(f"Projects at {selected_facility}" if selected_facility != "All" else "All Projects")
 project_names = filtered_df["Project Name"].unique()
@@ -84,5 +96,18 @@ for project in project_names:
         st.markdown(f"**Project Code:** {project_data['Project Code']}")
         st.markdown(f"**Completion Status:** {project_data['Completion Status']}")
 
+        # Slack request update button
+        if is_stale_update(project_data['Recent Status Update']):
+            if st.button(f"Request Update for {project}"):
+                zapier_webhook_url = "https://hooks.zapier.com/hooks/catch/18073884/2cco9aa/"
+                payload = {
+                    "project_name": project,
+                    "facility": project_data['Facility'],
+                    "status": project_data['STATUS'],
+                    "wo": project_data['WO#']
+                }
+                requests.post(zapier_webhook_url, json=payload)
+                st.success("Slack update request sent!")
+
 st.markdown("---")
-st.caption("Live synced with Google Sheets. Data updates automatically.")
+st.caption("Live synced with Google Sheets. Data updates automatically. Projects older than 7 days may trigger update requests.")
