@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
 
-# Load spreadsheet (can switch to Google Sheets URL later)
-df = pd.read_excel("FM - West _ Project Tracker.xlsx", sheet_name="Project Tracker", skiprows=1)
+# Load live Google Sheet as CSV
+sheet_url = "https://docs.google.com/spreadsheets/d/1FzLw6sHeLEed1e6ubijpjj2mNfG4B8UBJinO4KTe_ek/gviz/tq?tqx=out:csv&sheet=Project%20Tracker"
+df = pd.read_csv(sheet_url, skiprows=1)
 
 # Rename key columns for clarity
 df = df.rename(columns={
@@ -84,4 +85,4 @@ for project in project_names:
         st.markdown(f"**Completion Status:** {project_data['Completion Status']}")
 
 st.markdown("---")
-st.caption("Last updated manually from Excel. Live sync with Google Sheets available.")
+st.caption("Live synced with Google Sheets. Data updates automatically.")
