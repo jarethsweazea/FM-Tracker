@@ -119,7 +119,8 @@ for project in project_names:
                         "facility": str(project_data['Facility']),
                         "status": str(project_data['STATUS']),
                         "wo": str(project_data['WO#']),
-                        "sheet_link": gsheet_edit_url
+                        "sheet_link": gsheet_edit_url,
+                        "timestamp": datetime.now().isoformat()
                     }
                     requests.post(zapier_webhook_url, json=payload, timeout=5)
                     st.success("Update request sent via Slack and logged successfully.")
