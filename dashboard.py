@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 # Load live Google Sheet as CSV
 sheet_url = "https://docs.google.com/spreadsheets/d/1FzLw6sHeLEed1e6ubijpjj2mNfG4B8UBJinO4KTe_ek/gviz/tq?tqx=out:csv&sheet=Project%20Tracker"
+gsheet_edit_url = "https://docs.google.com/spreadsheets/d/1FzLw6sHeLEed1e6ubijpjj2mNfG4B8UBJinO4KTe_ek/edit#gid=0"
 df = pd.read_csv(sheet_url, skiprows=1)
 
 # Rename key columns for clarity
@@ -87,16 +88,21 @@ for project in project_names:
         st.markdown(f"**Completion Status:** {project_data['Completion Status']}")
 
         # Slack request update button (always visible for testing)
-        if st.button(f"Request Update for {project}"):
+        if st.button(f"Request Update for {project}", key=f"button_{project}"):
             zapier_webhook_url = "https://hooks.zapier.com/hooks/catch/18073884/2cco9aa/"
-            payload = {
-                "project_name": project,
-                "facility": project_data['Facility'],
-                "status": project_data['STATUS'],
-                "wo": project_data['WO#']
-            }
-            requests.post(zapier_webhook_url, json=payload)
-            st.success("Slack update request sent!")
+            try:
+                payload = {
+                    "project_name": str(project),
+                    "facility": str(project_data['Facility']),
+                    "status": str(project_data['STATUS']),
+                    "wo": str(project_data['WO#']),
+                    "sheet_link": gsheet_edit_url
+                }
+                requests.post(zapier_webhook_url, json=payload, timeout=5)
+                st.success("Update request sent via Slack!")
+            except Exception as e:
+                st.error("Failed to send update request.")
+                st.text(str(e))
 
 st.markdown("---")
 st.caption("Live synced with Google Sheets. Data updates automatically. Request buttons are currently always shown for testing.")
