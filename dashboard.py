@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 import requests
 from datetime import datetime, timedelta
-import gspread
-from google.oauth2 import service_account
 
 # Load live Google Sheet as CSV
 sheet_url = "https://docs.google.com/spreadsheets/d/1FzLw6sHeLEed1e6ubijpjj2mNfG4B8UBJinO4KTe_ek/gviz/tq?tqx=out:csv&sheet=Project%20Tracker"
