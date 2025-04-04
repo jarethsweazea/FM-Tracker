@@ -72,6 +72,8 @@ def fetch_recent_requests():
         log_url = f"https://docs.google.com/spreadsheets/d/{update_log_sheet_id}/gviz/tq?tqx=out:csv&sheet=Log"
         log_df = pd.read_csv(log_url)
         log_df["Timestamp"] = pd.to_datetime(log_df["Timestamp"], errors='coerce')
+        log_df["Project Name"] = log_df["Project Name"].astype(str).str.strip()
+        log_df["Facility"] = log_df["Facility"].astype(str).str.strip()
         return log_df
     except:
         return pd.DataFrame(columns=["Project Name", "WO#", "Facility", "Status", "Timestamp"])
@@ -100,14 +102,18 @@ for project in project_names:
         st.markdown(f"**Project Code:** {project_data['Project Code']}")
         st.markdown(f"**Completion Status:** {project_data['Completion Status']}")
 
-        # Check for existing request within the last 7 days
-        recent_request = log_df[(log_df["Project Name"] == project) & (log_df["WO#"] == project_data["WO#"])]
+        project_name_clean = str(project).strip()
+        facility_clean = str(project_data["Facility"]).strip()
+        recent_request = log_df[
+            (log_df["Project Name"] == project_name_clean) &
+            (log_df["Facility"] == facility_clean)
+        ]
         recent_request = recent_request[recent_request["Timestamp"] >= datetime.now() - timedelta(days=7)]
 
         if not recent_request.empty:
             last_ts = recent_request["Timestamp"].max()
             days_remaining = 7 - (datetime.now() - last_ts).days
-            st.info(f"🕒 Update request already sent on {last_ts.strftime('%b %d, %Y')}. You can send another in {days_remaining} day(s).")
+            st.markdown(f"🚫 Update request unavailable. Last sent on {last_ts.strftime('%b %d, %Y')} — available again in {days_remaining} day(s).")
         else:
             if st.button(f"Request Update for {project}", key=f"button_{project}"):
                 zapier_webhook_url = "https://hooks.zapier.com/hooks/catch/18073884/2cco9aa/"
