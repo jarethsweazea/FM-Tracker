@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 # Load live Google Sheet as CSV
 sheet_url = "https://docs.google.com/spreadsheets/d/1FzLw6sHeLEed1e6ubijpjj2mNfG4B8UBJinO4KTe_ek/gviz/tq?tqx=out:csv&sheet=Project%20Tracker"
 gsheet_edit_url = "https://docs.google.com/spreadsheets/d/1FzLw6sHeLEed1e6ubijpjj2mNfG4B8UBJinO4KTe_ek/edit#gid=0"
-update_log_sheet_id = "1zaFv1pci2U0UIAq-10CgY2MLoy2NCD9K1autIvGFplY"
+update_log_sheet_id = "1TAPw-tXHcYZRuZpSgcZs3TWs1AifGoAudEYVvB20lXs"
 df = pd.read_csv(sheet_url, skiprows=1)
 
 # Rename key columns for clarity
@@ -80,6 +80,7 @@ def fetch_recent_requests():
 
 log_df = fetch_recent_requests()
 log_df = log_df.copy()  # force Streamlit to treat this as a fresh reload every time
+log_df = log_df[log_df['Timestamp'] >= datetime.now() - timedelta(days=14)]  # keep only last 14 days
 
 # Main display: Table of Projects
 st.subheader(f"Projects at {selected_facility}" if selected_facility != "All" else "All Projects")
