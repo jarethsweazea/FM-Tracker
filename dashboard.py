@@ -82,57 +82,97 @@ log_df = fetch_recent_requests()
 log_df = log_df.copy()  # force Streamlit to treat this as a fresh reload every time
 log_df = log_df[log_df['Timestamp'] >= datetime.now() - timedelta(days=14)]  # keep only last 14 days
 
-# Main display: Table of Projects
-st.subheader(f"Projects at {selected_facility}" if selected_facility != "All" else "All Projects")
-project_names = filtered_df["Project Name"].unique()
+# --- ServiceChannel Token + Ticket Fetcher ---
+def get_servicechannel_token():
+    url = st.secrets["SERVICECHANNEL_TOKEN_URL"]
+    client_id = st.secrets["SERVICECHANNEL_CLIENT_ID"]
+    client_secret = st.secrets["SERVICECHANNEL_CLIENT_SECRET"]
+    payload = {
+        "grant_type": "client_credentials",
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "scope": "workorders.read"
+    }
+    response = requests.post(url, data=payload)
+    response.raise_for_status()
+    return response.json()["access_token"]
 
-for project in project_names:
-    project_data = filtered_df[filtered_df["Project Name"] == project].iloc[0]
-    color = get_status_color(project_data["STATUS"])
-    with st.expander(label=f"{project}", expanded=False):
-        status_tag = f"<span style='background-color:{color};color:white;padding:3px 8px;margin-right:10px;border-radius:4px;font-size:13px'>{project_data['STATUS']}</span>"
-        st.markdown(f"{status_tag}", unsafe_allow_html=True)
-        st.markdown(f"**Recent Update:** {project_data['Recent Status Update']}")
-        st.markdown(f"**Project Summary:** {project_data['Project Summary']}")
-        st.markdown(f"**Phase:** {project_data['Phase']}")
-        st.markdown(f"**WO #:** {project_data['WO#']}")
-        st.markdown(f"**Initial Work Date:** {project_data['Initial Work Date']}")
-        st.markdown(f"**Expected Completion:** {project_data['Expected Completion Date']}")
-        st.markdown(f"**Actual Completion:** {project_data['Actual Completion']}")
-        st.markdown(f"**Est. Cost:** {project_data['Est. Cost']}")
-        st.markdown(f"**Approved Cost:** {project_data['Approved Cost']}")
-        st.markdown(f"**Project Code:** {project_data['Project Code']}")
-        st.markdown(f"**Completion Status:** {project_data['Completion Status']}")
+def get_open_workorders(token):
+    base_url = st.secrets["SERVICECHANNEL_API_URL"]
+    endpoint = f"{base_url}/v1/workorders?status=Open"
+    headers = {"Authorization": f"Bearer {token}"}
+    response = requests.get(endpoint, headers=headers)
+    response.raise_for_status()
+    return response.json()
 
-        project_name_clean = str(project).strip()
-        facility_clean = str(project_data["Facility"]).strip()
-        recent_request = log_df[
-            (log_df["Project Name"] == project_name_clean) &
-            (log_df["Facility"] == facility_clean)
-        ]
-        recent_request = recent_request[recent_request["Timestamp"] >= datetime.now() - timedelta(days=7)]
+# --- Tabs ---
+tabs = st.tabs(["📋 Project Dashboard", "🔧 Maintenance Tickets"])
 
-        if not recent_request.empty:
-            last_ts = recent_request["Timestamp"].max()
-            days_remaining = 7 - (datetime.now() - last_ts).days
-            st.markdown(f"🚫 Update request unavailable. Last sent on {last_ts.strftime('%b %d, %Y')} — available again in {days_remaining} day(s).")
-        else:
-            if st.button(f"Request Update for {project}", key=f"button_{project}"):
-                zapier_webhook_url = "https://hooks.zapier.com/hooks/catch/18073884/2cco9aa/"
-                try:
-                    payload = {
-                        "project_name": str(project),
-                        "facility": str(project_data['Facility']),
-                        "status": str(project_data['STATUS']),
-                        "wo": str(project_data['WO#']),
-                        "sheet_link": gsheet_edit_url,
-                        "timestamp": datetime.now().isoformat()
-                    }
-                    requests.post(zapier_webhook_url, json=payload, timeout=5)
-                    st.success("Update request sent via Slack and logged successfully.")
-                except Exception as e:
-                    st.error("Failed to send update request.")
-                    st.text(str(e))
+# --- Tab 1: Project Dashboard ---
+with tabs[0]:
+    st.subheader(f"Projects at {selected_facility}" if selected_facility != "All" else "All Projects")
+    project_names = filtered_df["Project Name"].unique()
+
+    for project in project_names:
+        project_data = filtered_df[filtered_df["Project Name"] == project].iloc[0]
+        color = get_status_color(project_data["STATUS"])
+        with st.expander(label=f"{project}", expanded=False):
+            status_tag = f"<span style='background-color:{color};color:white;padding:3px 8px;margin-right:10px;border-radius:4px;font-size:13px'>{project_data['STATUS']}</span>"
+            st.markdown(f"{status_tag}", unsafe_allow_html=True)
+            st.markdown(f"**Recent Update:** {project_data['Recent Status Update']}")
+            st.markdown(f"**Project Summary:** {project_data['Project Summary']}")
+            st.markdown(f"**Phase:** {project_data['Phase']}")
+            st.markdown(f"**WO #:** {project_data['WO#']}")
+            st.markdown(f"**Initial Work Date:** {project_data['Initial Work Date']}")
+            st.markdown(f"**Expected Completion:** {project_data['Expected Completion Date']}")
+            st.markdown(f"**Actual Completion:** {project_data['Actual Completion']}")
+            st.markdown(f"**Est. Cost:** {project_data['Est. Cost']}")
+            st.markdown(f"**Approved Cost:** {project_data['Approved Cost']}")
+            st.markdown(f"**Project Code:** {project_data['Project Code']}")
+            st.markdown(f"**Completion Status:** {project_data['Completion Status']}")
+
+            project_name_clean = str(project).strip()
+            facility_clean = str(project_data["Facility"]).strip()
+            recent_request = log_df[
+                (log_df["Project Name"] == project_name_clean) &
+                (log_df["Facility"] == facility_clean)
+            ]
+            recent_request = recent_request[recent_request["Timestamp"] >= datetime.now() - timedelta(days=7)]
+
+            if not recent_request.empty:
+                last_ts = recent_request["Timestamp"].max()
+                days_remaining = 7 - (datetime.now() - last_ts).days
+                st.markdown(f"🚫 Update request unavailable. Last sent on {last_ts.strftime('%b %d, %Y')} — available again in {days_remaining} day(s).")
+            else:
+                if st.button(f"Request Update for {project}", key=f"button_{project}"):
+                    zapier_webhook_url = "https://hooks.zapier.com/hooks/catch/18073884/2cco9aa/"
+                    try:
+                        payload = {
+                            "project_name": str(project),
+                            "facility": str(project_data['Facility']),
+                            "status": str(project_data['STATUS']),
+                            "wo": str(project_data['WO#']),
+                            "sheet_link": gsheet_edit_url,
+                            "timestamp": datetime.now().isoformat()
+                        }
+                        requests.post(zapier_webhook_url, json=payload, timeout=5)
+                        st.success("Update request sent via Slack and logged successfully.")
+                    except Exception as e:
+                        st.error("Failed to send update request.")
+                        st.text(str(e))
+
+# --- Tab 2: Maintenance Tickets ---
+with tabs[1]:
+    st.subheader("Open Maintenance Tickets")
+    try:
+        token = get_servicechannel_token()
+        data = get_open_workorders(token)
+        # Show basic JSON or table until schema is finalized
+        st.write("Raw Ticket Data:")
+        st.json(data)
+    except Exception as e:
+        st.error("Failed to retrieve ServiceChannel tickets.")
+        st.text(str(e))
 
 st.markdown("---")
 st.caption("Live synced with Google Sheets. Data updates automatically. Update requests are limited to once every 7 days per project.")
