@@ -167,3 +167,4 @@ with tabs[1]:
 
 st.markdown("---")
 st.caption("Live synced with Google Sheets. Data updates automatically. Update requests are limited to once every 7 days per project.")
+
