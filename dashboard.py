@@ -93,7 +93,7 @@ def fetch_open_work_orders():
     if not token:
         return pd.DataFrame(), "Unable to retrieve access token."
     headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
-    params = {"status": "Open", "limit": 100}
+    params = {"status": "Open", "limit": 100, "region": "West"}
     response = requests.get("https://api.servicechannel.com/v3/workorders", headers=headers, params=params)
     if response.ok:
         data = response.json()
