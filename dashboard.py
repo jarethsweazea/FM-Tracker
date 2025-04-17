@@ -133,6 +133,14 @@ date_columns = ["Creation Date", "Initial Work Date", "Expected Completion Date"
 for col in date_columns:
     df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%m/%d/%Y')
 
+# === Apply Filters to Project Data ===
+if selected_facility != "All":
+    df = df[df["Facility"].str.strip() == selected_facility.strip()]
+elif selected_city != "All":
+    df = df[df["Facility"].str.contains(f" - {selected_city} - ")]
+elif selected_state != "All":
+    df = df[df["Facility"].str.contains(f" - {selected_state} - ")]
+
 
 # === Color Tag Logic ===
 status_colors = {
