@@ -163,7 +163,7 @@ with tabs[1]:
     elif not ticket_df.empty:
         st.dataframe(ticket_df)
     else:
-        st.info("No open work orders available.")
+        st.info("No open work orders available — check if your account has access to regional or location-level data.")
 
 st.markdown("---")
 st.caption("Live synced with Google Sheets. Data updates automatically. Update requests are limited to once every 7 days per project.")
