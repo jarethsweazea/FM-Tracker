@@ -9,6 +9,64 @@ sheet_url = "https://docs.google.com/spreadsheets/d/1FzLw6sHeLEed1e6ubijpjj2mNfG
 gsheet_edit_url = "https://docs.google.com/spreadsheets/d/1FzLw6sHeLEed1e6ubijpjj2mNfG4B8UBJinO4KTe_ek/edit#gid=0"
 update_log_sheet_id = "1TAPw-tXHcYZRuZpSgcZs3TWs1AifGoAudEYVvB20lXs"
 
+# === Full West Region Facility List ===
+full_facility_list = [
+    "USA - AZ - Phoenix - Midtown - 720 W Highland Ave",
+    "USA - AZ - Tempe - ASU - 1900 E 5th St",
+    "USA - AZ - Tucson - U of A - 613 E Delano St",
+    "USA - CA - Anaheim - Anaheim Resort - 1560 S Lewis St",
+    "USA - CA - Costa Mesa - Triangle Square - 1750 Newport Blvd",
+    "USA - CA - Culver City - Fox Hills - 5668 Selmaraine Dr",
+    "USA - CA - Hayward - Hayward - 1025 A St",
+    "USA - CA - Huntington Beach - Downtown - 17531 Griffin Ln",
+    "USA - CA - Lawndale - South Bay - 16711 Hawthorne Blvd",
+    "USA - CA - Long Beach - Downtown - 1388 Daisy Ave",
+    "USA - CA - Los Angeles - Alhambra - 5477 Alhambra Ave",
+    "USA - CA - Los Angeles - Beverly Hills - 8600 W Pico Blvd",
+    "USA - CA - Los Angeles - Downtown - 417 S Hill St",
+    "USA - CA - Los Angeles - Echo Park - 1411 W Sunset Blvd",
+    "USA - CA - Los Angeles - Hollywood - 615 N Western Ave",
+    "USA - CA - Los Angeles - Koreatown - 1842 W Washington Blvd",
+    "USA - CA - Los Angeles - Mid-City - 5443 W Pico Blvd",
+    "USA - CA - Los Angeles - Santa Monica - 3000 S Bundy Dr",
+    "USA - CA - Los Angeles - Silverlake - 3446 John St",
+    "USA - CA - Los Angeles - University Park - 358 W 38th St",
+    "USA - CA - Los Angeles - West LA - 2352 S Sepulveda Blvd",
+    "USA - CA - Mountain View - Downtown - 2150 Old Middlefield Way",
+    "USA - CA - Oakland - Berkeley - 5333 Adeline St",
+    "USA - CA - Oakland - Downtown - 2353 E 12th St",
+    "USA - CA - Oceanside - North County - 3760 Oceanic Way",
+    "USA - CA - Pasadena - Old Town - 1060 E Colorado Blvd",
+    "USA - CA - Redwood City - Downtown - 426 MacArthur Ave",
+    "USA - CA - Sacramento - Downtown - 1501 N C St",
+    "USA - CA - San Diego - Downtown - 2707 Boston Ave",
+    "USA - CA - San Diego - SDSU - 6334 El Cajon Blvd",
+    "USA - CA - San Francisco - Lower Mission - 90 Charter Oak Ave",
+    "USA - CA - San Francisco - SoMa - 475 6th St",
+    "USA - CA - San Francisco - Union Square - 1200 Market St",
+    "USA - CA - San Jose - Downtown - 96 E Santa Clara St",
+    "USA - CA - San Jose - North - 949 Ruff Dr",
+    "USA - CA - San Mateo - Downtown - 66 21st Ave",
+    "USA - CA - Santa Ana - South Coast Metro - 2509 S Broadway",
+    "USA - CA - Sunnyvale - Downtown - 1026 W Evelyn Ave",
+    "USA - CA - Van Nuys - San Fernando Valley - 14435 Victory Blvd",
+    "USA - CO - Aurora - Town Center Mall - 14200 E Alameda Ave",
+    "USA - CO - Denver - Downtown - 810 N Vallejo St",
+    "USA - CO - Denver - South - 2171 S Grape St",
+    "USA - ID - Boise - West End - 1744 W Main St",
+    "USA - NV - Las Vegas - Durango - 4215 S Durango Dr",
+    "USA - NV - Las Vegas - North Strip - 333 W St Louis Ave",
+    "USA - NV - Las Vegas - Summerlin - 110 S Rainbow Blvd",
+    "USA - OR - Portland - Inner Southeast - 1135 SE Grand Ave",
+    "USA - UT - Salt Lake City - Downtown - 23 N 900 W",
+    "USA - WA - Seattle - Capitol Hill - 1525 13th Ave",
+    "USA - WA - Seattle - South Lake Union - 1601 Dexter Ave N",
+    "USA - WA - Seattle - U-District - 5600 Roosevelt Way NE",
+    "USA - WA - Tacoma - Lincoln District - 3726 S G St"
+]
+
+# (Facility list preserved from previous input for brevity)
+
 # === Load and prepare project data ===
 df = pd.read_csv(sheet_url, skiprows=1)
 df = df.rename(columns={
@@ -39,10 +97,23 @@ date_columns = ["Creation Date", "Initial Work Date", "Expected Completion Date"
 for col in date_columns:
     df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%m/%d/%Y')
 
+# === Facility Filtering Using Full List ===
+region_options = sorted(set([x.split(" - ")[1] for x in full_facility_list]))
+selected_region = st.sidebar.selectbox("Region", ["All"] + region_options)
+state_options = sorted(set([x.split(" - ")[2] for x in full_facility_list if x.split(" - ")[1] == selected_region])) if selected_region != "All" else []
+selected_state = st.sidebar.selectbox("State", ["All"] + state_options) if state_options else "All"
+county_options = sorted(set([x.split(" - ")[3] for x in full_facility_list if x.split(" - ")[1] == selected_region and x.split(" - ")[2] == selected_state])) if selected_state != "All" else []
+selected_county = st.sidebar.selectbox("County", ["All"] + county_options) if county_options else "All"
+filtered_facilities = [f for f in full_facility_list if
+    (selected_region == "All" or f.split(" - ")[1] == selected_region) and
+    (selected_state == "All" or f.split(" - ")[2] == selected_state) and
+    (selected_county == "All" or f.split(" - ")[3] == selected_county)
+]
+
 # === Streamlit Setup ===
 st.set_page_config(layout="wide")
 st.title("📍 West Region Project Tracker")
-tabs = st.tabs(["📋 Project Dashboard", "🛀 Maintenance Tickets"])
+tabs = st.tabs(["📋 Project Dashboard", "🛠 Maintenance Tickets"])
 
 # === Color Tag Logic ===
 status_colors = {
@@ -93,15 +164,12 @@ def fetch_all_open_work_orders():
     if not token:
         return pd.DataFrame(), "Unable to retrieve access token."
 
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Accept": "application/json"
-    }
-
+    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
     url = "https://api.servicechannel.com/v3/odata/workorders"
     params = {
-        "$select": "Id",
-        "$filter": "Status/Primary eq 'OPEN'"
+        "$select": "Id,Number,PurchaseOrderNumber,LocationId,Caller,CreatedBy,CallDate,Priority,Trade,ApprovalCode",
+        "$filter": "Status/Primary eq 'OPEN'",
+        "$top": 1000
     }
 
     try:
@@ -109,77 +177,71 @@ def fetch_all_open_work_orders():
         if not response.ok:
             return pd.DataFrame(), f"API error {response.status_code}: {response.text}"
         data = response.json()
-        work_orders = data.get("value", [])
-        if not isinstance(work_orders, list):
-            return pd.DataFrame(), "Unexpected work order format returned."
-        return pd.json_normalize(work_orders), None
+        return pd.json_normalize(data.get("value", [])), None
     except Exception as e:
         return pd.DataFrame(), f"Exception fetching work orders: {str(e)}"
 
 # === Project Dashboard ===
 with tabs[0]:
     st.subheader("Projects")
-    facility_list = sorted(df["Facility"].unique())
-    selected_facility = st.sidebar.selectbox("Select Facility", ["All"] + facility_list)
+    filtered_df = df[df["Facility"].isin(filtered_facilities)]
 
-    if selected_facility != "All":
-        filtered_df = df[df["Facility"] == selected_facility]
+    if filtered_df.empty:
+        st.warning("No projects in progress for this selection.")
     else:
-        filtered_df = df
+        for project in filtered_df["Project Name"].unique():
+            project_data = filtered_df[filtered_df["Project Name"] == project].iloc[0]
+            color = get_status_color(project_data["STATUS"])
+            with st.expander(f"{project}", expanded=False):
+                status_tag = f"<span style='background-color:{color};color:white;padding:3px 8px;margin-right:10px;border-radius:4px;font-size:13px'>{project_data['STATUS']}</span>"
+                st.markdown(status_tag, unsafe_allow_html=True)
+                st.markdown(f"**Recent Update:** {project_data['Recent Status Update']}")
+                st.markdown(f"**Project Summary:** {project_data['Project Summary']}")
+                st.markdown(f"**Phase:** {project_data['Phase']}")
+                st.markdown(f"**WO #:** {project_data['WO#']}")
+                st.markdown(f"**Initial Work Date:** {project_data['Initial Work Date']}")
+                st.markdown(f"**Expected Completion:** {project_data['Expected Completion Date']}")
+                st.markdown(f"**Actual Completion:** {project_data['Actual Completion']}")
+                st.markdown(f"**Est. Cost:** {project_data['Est. Cost']}")
+                st.markdown(f"**Approved Cost:** {project_data['Approved Cost']}")
+                st.markdown(f"**Project Code:** {project_data['Project Code']}")
+                st.markdown(f"**Completion Status:** {project_data['Completion Status']}")
 
-    for project in filtered_df["Project Name"].unique():
-        project_data = filtered_df[filtered_df["Project Name"] == project].iloc[0]
-        color = get_status_color(project_data["STATUS"])
-        with st.expander(f"{project}", expanded=False):
-            status_tag = f"<span style='background-color:{color};color:white;padding:3px 8px;margin-right:10px;border-radius:4px;font-size:13px'>{project_data['STATUS']}</span>"
-            st.markdown(status_tag, unsafe_allow_html=True)
-            st.markdown(f"**Recent Update:** {project_data['Recent Status Update']}")
-            st.markdown(f"**Project Summary:** {project_data['Project Summary']}")
-            st.markdown(f"**Phase:** {project_data['Phase']}")
-            st.markdown(f"**WO #:** {project_data['WO#']}")
-            st.markdown(f"**Initial Work Date:** {project_data['Initial Work Date']}")
-            st.markdown(f"**Expected Completion:** {project_data['Expected Completion Date']}")
-            st.markdown(f"**Actual Completion:** {project_data['Actual Completion']}")
-            st.markdown(f"**Est. Cost:** {project_data['Est. Cost']}")
-            st.markdown(f"**Approved Cost:** {project_data['Approved Cost']}")
-            st.markdown(f"**Project Code:** {project_data['Project Code']}")
-            st.markdown(f"**Completion Status:** {project_data['Completion Status']}")
+                project_name_clean = str(project).strip()
+                facility_clean = str(project_data["Facility"]).strip()
+                recent_request = log_df[(log_df["Project Name"] == project_name_clean) & (log_df["Facility"] == facility_clean)]
+                recent_request = recent_request[recent_request["Timestamp"] >= datetime.now() - timedelta(days=7)]
 
-            project_name_clean = str(project).strip()
-            facility_clean = str(project_data["Facility"]).strip()
-            recent_request = log_df[(log_df["Project Name"] == project_name_clean) & (log_df["Facility"] == facility_clean)]
-            recent_request = recent_request[recent_request["Timestamp"] >= datetime.now() - timedelta(days=7)]
-
-            if not recent_request.empty:
-                last_ts = recent_request["Timestamp"].max()
-                days_remaining = 7 - (datetime.now() - last_ts).days
-                st.markdown(f"🛑 Update request unavailable. Last sent on {last_ts.strftime('%b %d, %Y')} — available again in {days_remaining} day(s).")
-            else:
-                if st.button(f"Request Update for {project}", key=f"button_{project}"):
-                    zapier_webhook_url = "https://hooks.zapier.com/hooks/catch/18073884/2cco9aa/"
-                    try:
-                        payload = {
-                            "project_name": str(project),
-                            "facility": str(project_data['Facility']),
-                            "status": str(project_data['STATUS']),
-                            "wo": str(project_data['WO#']),
-                            "sheet_link": gsheet_edit_url,
-                            "timestamp": datetime.now().isoformat()
-                        }
-                        requests.post(zapier_webhook_url, json=payload, timeout=5)
-                        st.success("Update request sent via Slack and logged successfully.")
-                    except Exception as e:
-                        st.error("Failed to send update request.")
-                        st.text(str(e))
+                if not recent_request.empty:
+                    last_ts = recent_request["Timestamp"].max()
+                    days_remaining = 7 - (datetime.now() - last_ts).days
+                    st.markdown(f"🛑 Update request unavailable. Last sent on {last_ts.strftime('%b %d, %Y')} — available again in {days_remaining} day(s).")
+                else:
+                    if st.button(f"Request Update for {project}", key=f"button_{project}"):
+                        zapier_webhook_url = "https://hooks.zapier.com/hooks/catch/18073884/2cco9aa/"
+                        try:
+                            payload = {
+                                "project_name": str(project),
+                                "facility": str(project_data['Facility']),
+                                "status": str(project_data['STATUS']),
+                                "wo": str(project_data['WO#']),
+                                "sheet_link": gsheet_edit_url,
+                                "timestamp": datetime.now().isoformat()
+                            }
+                            requests.post(zapier_webhook_url, json=payload, timeout=5)
+                            st.success("Update request sent via Slack and logged successfully.")
+                        except Exception as e:
+                            st.error("Failed to send update request.")
+                            st.text(str(e))
 
 # === Tab 2: Maintenance Tickets ===
 with tabs[1]:
-    st.header("Open Maintenance Tickets")
+    st.subheader("Open Maintenance Tickets")
     ticket_df, ticket_error = fetch_all_open_work_orders()
     if ticket_error:
         st.error(ticket_error)
     elif ticket_df.empty:
-        st.warning("No work order data found.")
+        st.info("No work order data available.")
     else:
         st.dataframe(ticket_df)
 
