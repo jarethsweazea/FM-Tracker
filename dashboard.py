@@ -96,9 +96,19 @@ def fetch_all_open_work_orders():
     url = "https://api.servicechannel.com/v3/workorders"
     params = {"status": "Open", "limit": 100}
     response = requests.get(url, headers=headers, params=params)
-    if response.ok:
-        return pd.json_normalize(response.json().get("workOrders", [])), None
-    return pd.DataFrame(), f"API error: {response.status_code}"
+
+    try:
+        data = response.json()
+    except Exception as e:
+        return pd.DataFrame(), f"Failed to parse response: {str(e)}"
+
+    if not response.ok:
+        return pd.DataFrame(), f"API error {response.status_code}: {data}"
+
+    if "workOrders" not in data:
+        return pd.DataFrame(), f"No 'workOrders' key in response: {data}"
+
+    return pd.json_normalize(data["workOrders"]), None
 
 # === Project Dashboard ===
 with tabs[0]:
