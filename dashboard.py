@@ -4,6 +4,11 @@ import requests
 from datetime import datetime, timedelta
 from base64 import b64encode
 
+# === Streamlit Setup ===
+st.set_page_config(layout="wide")
+st.title("📍 West Region Project Tracker")
+tabs = st.tabs(["📋 Project Dashboard", "🛠 Maintenance Tickets"])
+
 # === Sheet URLs ===
 sheet_url = "https://docs.google.com/spreadsheets/d/1FzLw6sHeLEed1e6ubijpjj2mNfG4B8UBJinO4KTe_ek/gviz/tq?tqx=out:csv&sheet=Project%20Tracker"
 gsheet_edit_url = "https://docs.google.com/spreadsheets/d/1FzLw6sHeLEed1e6ubijpjj2mNfG4B8UBJinO4KTe_ek/edit#gid=0"
@@ -140,11 +145,6 @@ filtered_facilities = [f for f in full_facility_list if
     (selected_state == "All" or f.split(" - ")[2] == selected_state) and
     (selected_county == "All" or f.split(" - ")[3] == selected_county)
 ]
-
-# === Streamlit Setup ===
-st.set_page_config(layout="wide")
-st.title("📍 West Region Project Tracker")
-tabs = st.tabs(["📋 Project Dashboard", "🛠 Maintenance Tickets"])
 
 # === Color Tag Logic ===
 status_colors = {
