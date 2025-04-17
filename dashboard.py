@@ -133,20 +133,29 @@ date_columns = ["Creation Date", "Initial Work Date", "Expected Completion Date"
 for col in date_columns:
     df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%m/%d/%Y')
 
-# === Apply Facility Filters to Project Data ===
-def facility_matches(project_facility):
-    for f in parsed_facilities:
-        expected = f"{f['state']}_{f['city']}_{f['label']}"
-        if (
-            (selected_facility != "All" and selected_facility == f["label"]) or
-            (selected_city != "All" and selected_city == f["city"]) or
-            (selected_state != "All" and selected_state == f["state"])
-        ):
-            if expected == project_facility.strip():
-                return True
-    return selected_facility == "All" and selected_city == "All" and selected_state == "All"
+def extract_parts(facility):
+    try:
+        parts = facility.split("_")
+        return {
+            "state": parts[0],
+            "city": parts[1],
+            "address": "_".join(parts[2:])  # Handles multi-word streets
+        }
+    except:
+        return {"state": "", "city": "", "address": ""}
 
-df = df[df["Facility"].apply(facility_matches)]
+facility_parts = df["Facility"].apply(extract_parts)
+df["state"] = facility_parts.apply(lambda x: x["state"])
+df["city"] = facility_parts.apply(lambda x: x["city"])
+df["address"] = facility_parts.apply(lambda x: x["address"])
+
+if selected_facility != "All":
+    df = df[df["address"].str.strip() == selected_facility.strip()]
+elif selected_city != "All":
+    df = df[df["city"].str.strip() == selected_city.strip()]
+elif selected_state != "All":
+    df = df[df["state"].str.strip() == selected_state.strip()]
+
 
 
 
