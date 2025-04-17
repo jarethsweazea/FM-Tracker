@@ -98,10 +98,10 @@ def fetch_all_open_work_orders():
         "Accept": "application/json"
     }
 
-    url = "https://api.servicechannel.com/v3/workorders"
+    url = "https://sb2api.servicechannel.com/v3/odata/workorders"
     params = {
-        "status": "Open",
-        "limit": 1000
+        "$select": "Id",
+        "$filter": "Status/Primary eq 'OPEN'"
     }
 
     try:
@@ -109,17 +109,12 @@ def fetch_all_open_work_orders():
         if not response.ok:
             return pd.DataFrame(), f"API error {response.status_code}: {response.text}"
         data = response.json()
-    except Exception as e:
-        return pd.DataFrame(), f"Failed to fetch or parse response: {str(e)}"
-
-    work_orders = data.get("workOrders")
-    if not work_orders or not isinstance(work_orders, list):
-        return pd.DataFrame(), "No valid work order data returned."
-
-    try:
+        work_orders = data.get("value", [])
+        if not isinstance(work_orders, list):
+            return pd.DataFrame(), "Unexpected work order format returned."
         return pd.json_normalize(work_orders), None
     except Exception as e:
-        return pd.DataFrame(), f"Error normalizing work order data: {str(e)}"
+        return pd.DataFrame(), f"Exception fetching work orders: {str(e)}"
 
 # === Project Dashboard ===
 with tabs[0]:
