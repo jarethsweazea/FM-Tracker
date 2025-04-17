@@ -76,9 +76,8 @@ def parse_facility_parts(facility_string):
     return {
         "state": parts[2],
         "city": parts[3],
-        "label": f"{parts[2]}_{parts[3]}_{parts[-1]}"
+        "label": parts[-1]  # Changed back to show only address as label
     }
-
 
 
 parsed_facilities = [parse_facility_parts(f) for f in full_facility_list]
