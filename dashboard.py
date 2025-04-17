@@ -70,38 +70,36 @@ full_facility_list = [
     "USA - WA - Tacoma - Lincoln District - 3726 S G St"
 ]
 
-# === Create Tiered Filter Options ===
+# === Sidebar Filters (simplified to State, City, Facility with Reset Button) ===
 def parse_facility_parts(facility_string):
     parts = facility_string.split(" - ")
     return {
-        "region": parts[0],
-        "state": parts[1],
-        "city": parts[2],
-        "label": " - ".join(parts[1:])  # For display
+        "state": parts[2],
+        "city": parts[3],
+        "label": " - ".join(parts[1:])
     }
 
 parsed_facilities = [parse_facility_parts(f) for f in full_facility_list]
 
-region_options = sorted(set(f["region"] for f in parsed_facilities))
-selected_region = st.sidebar.selectbox("Select Region", ["All"] + region_options)
+with st.sidebar:
+    if st.button("Clear Filters"):
+        st.session_state["selected_state"] = "All"
+        st.session_state["selected_city"] = "All"
+        st.session_state["selected_facility"] = "All"
 
-state_options = sorted(set(f["state"] for f in parsed_facilities if selected_region == "All" or f["region"] == selected_region))
-selected_state = st.sidebar.selectbox("Select State", ["All"] + state_options)
+    state_options = sorted(set(f["state"] for f in parsed_facilities))
+    selected_state = st.selectbox("Select State", ["All"] + state_options, key="selected_state")
 
-city_options = sorted(set(f["city"] for f in parsed_facilities if 
-    (selected_region == "All" or f["region"] == selected_region) and
-    (selected_state == "All" or f["state"] == selected_state)
-))
-selected_city = st.sidebar.selectbox("Select City", ["All"] + city_options)
+    city_options = sorted(set(f["city"] for f in parsed_facilities if selected_state == "All" or f["state"] == selected_state))
+    selected_city = st.selectbox("Select City", ["All"] + city_options, key="selected_city")
 
-filtered_facilities = [
-    f["label"] for f in parsed_facilities
-    if (selected_region in ["All", f["region"]]) and
-       (selected_state in ["All", f["state"]]) and
-       (selected_city in ["All", f["city"]])
-]
+    filtered_facilities = [
+        f["label"] for f in parsed_facilities
+        if (selected_state in ["All", f["state"]]) and
+           (selected_city in ["All", f["city"]])
+    ]
 
-selected_facility = st.sidebar.selectbox("Select Facility", ["All"] + filtered_facilities)
+    selected_facility = st.selectbox("Select Facility", ["All"] + filtered_facilities, key="selected_facility")
 
 
 # === Load and prepare project data ===
