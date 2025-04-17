@@ -92,23 +92,35 @@ def fetch_all_open_work_orders():
     token = get_servicechannel_token()
     if not token:
         return pd.DataFrame(), "Unable to retrieve access token."
-    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+
     url = "https://api.servicechannel.com/v3/workorders"
-    params = {"status": "Open", "limit": 100}
-    response = requests.get(url, headers=headers, params=params)
+    params = {
+        "status": "Open",
+        "limit": 1000
+    }
 
     try:
+        response = requests.get(url, headers=headers, params=params)
         data = response.json()
     except Exception as e:
-        return pd.DataFrame(), f"Failed to parse response: {str(e)}"
+        return pd.DataFrame(), f"Failed to fetch or parse response: {str(e)}"
 
     if not response.ok:
         return pd.DataFrame(), f"API error {response.status_code}: {data}"
 
-    if "workOrders" not in data:
-        return pd.DataFrame(), f"No 'workOrders' key in response: {data}"
+    work_orders = data.get("workOrders")
+    if not work_orders or not isinstance(work_orders, list):
+        return pd.DataFrame(), "No valid work order data returned."
 
-    return pd.json_normalize(data["workOrders"]), None
+    try:
+        return pd.json_normalize(work_orders), None
+    except Exception as e:
+        return pd.DataFrame(), f"Error normalizing work order data: {str(e)}"
 
 # === Project Dashboard ===
 with tabs[0]:
