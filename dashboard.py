@@ -133,13 +133,21 @@ date_columns = ["Creation Date", "Initial Work Date", "Expected Completion Date"
 for col in date_columns:
     df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%m/%d/%Y')
 
-# === Apply Filters to Project Data ===
-if selected_facility != "All":
-    df = df[df["Facility"].str.strip() == selected_facility.strip()]
-elif selected_city != "All":
-    df = df[df["Facility"].str.contains(f" - {selected_city} - ")]
-elif selected_state != "All":
-    df = df[df["Facility"].str.contains(f" - {selected_state} - ")]
+# === Apply Facility Filters to Project Data ===
+def facility_matches(project_facility):
+    for f in parsed_facilities:
+        expected = f"{f['state']}_{f['city']}_{f['label']}"
+        if (
+            (selected_facility != "All" and selected_facility == f["label"]) or
+            (selected_city != "All" and selected_city == f["city"]) or
+            (selected_state != "All" and selected_state == f["state"])
+        ):
+            if expected == project_facility.strip():
+                return True
+    return selected_facility == "All" and selected_city == "All" and selected_state == "All"
+
+df = df[df["Facility"].apply(facility_matches)]
+
 
 
 # === Color Tag Logic ===
