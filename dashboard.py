@@ -74,10 +74,11 @@ full_facility_list = [
 def parse_facility_parts(facility_string):
     parts = facility_string.split(" - ")
     return {
-        "state": parts[2],
-        "city": parts[3],
-        "label": " - ".join(parts[1:])
+        "state": parts[1],
+        "city": parts[2],
+        "label": parts[4]  # this will be used in dropdown
     }
+
 
 parsed_facilities = [parse_facility_parts(f) for f in full_facility_list]
 
