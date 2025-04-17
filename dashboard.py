@@ -42,7 +42,7 @@ for col in date_columns:
 # === Streamlit Setup ===
 st.set_page_config(layout="wide")
 st.title("📍 West Region Project Tracker")
-tabs = st.tabs(["📋 Project Dashboard", "🔠 Maintenance Tickets"])
+tabs = st.tabs(["📋 Project Dashboard", "🛀 Maintenance Tickets"])
 
 # === Color Tag Logic ===
 status_colors = {
@@ -106,12 +106,11 @@ def fetch_all_open_work_orders():
 
     try:
         response = requests.get(url, headers=headers, params=params)
+        if not response.ok:
+            return pd.DataFrame(), f"API error {response.status_code}: {response.text}"
         data = response.json()
     except Exception as e:
         return pd.DataFrame(), f"Failed to fetch or parse response: {str(e)}"
-
-    if not response.ok:
-        return pd.DataFrame(), f"API error {response.status_code}: {data}"
 
     work_orders = data.get("workOrders")
     if not work_orders or not isinstance(work_orders, list):
@@ -159,7 +158,7 @@ with tabs[0]:
             if not recent_request.empty:
                 last_ts = recent_request["Timestamp"].max()
                 days_remaining = 7 - (datetime.now() - last_ts).days
-                st.markdown(f"🚫 Update request unavailable. Last sent on {last_ts.strftime('%b %d, %Y')} — available again in {days_remaining} day(s).")
+                st.markdown(f"🛑 Update request unavailable. Last sent on {last_ts.strftime('%b %d, %Y')} — available again in {days_remaining} day(s).")
             else:
                 if st.button(f"Request Update for {project}", key=f"button_{project}"):
                     zapier_webhook_url = "https://hooks.zapier.com/hooks/catch/18073884/2cco9aa/"
