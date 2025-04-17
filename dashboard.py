@@ -132,18 +132,6 @@ date_columns = ["Creation Date", "Initial Work Date", "Expected Completion Date"
 for col in date_columns:
     df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%m/%d/%Y')
 
-# === Facility Filtering Using Full List ===
-region_options = sorted(set([x.split(" - ")[1] for x in full_facility_list]))
-selected_region = st.sidebar.selectbox("Region", ["All"] + region_options)
-state_options = sorted(set([x.split(" - ")[2] for x in full_facility_list if x.split(" - ")[1] == selected_region])) if selected_region != "All" else []
-selected_state = st.sidebar.selectbox("State", ["All"] + state_options) if state_options else "All"
-county_options = sorted(set([x.split(" - ")[3] for x in full_facility_list if x.split(" - ")[1] == selected_region and x.split(" - ")[2] == selected_state])) if selected_state != "All" else []
-selected_county = st.sidebar.selectbox("County", ["All"] + county_options) if county_options else "All"
-filtered_facilities = [f for f in full_facility_list if
-    (selected_region == "All" or f.split(" - ")[1] == selected_region) and
-    (selected_state == "All" or f.split(" - ")[2] == selected_state) and
-    (selected_county == "All" or f.split(" - ")[3] == selected_county)
-]
 
 # === Color Tag Logic ===
 status_colors = {
