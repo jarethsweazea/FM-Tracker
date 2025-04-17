@@ -98,7 +98,7 @@ def fetch_all_open_work_orders():
         "Accept": "application/json"
     }
 
-    url = "https://sb2api.servicechannel.com/v3/odata/workorders"
+    url = "https://api.servicechannel.com/v3/odata/workorders"
     params = {
         "$select": "Id",
         "$filter": "Status/Primary eq 'OPEN'"
