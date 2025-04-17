@@ -69,6 +69,7 @@ full_facility_list = [
     "USA - WA - Seattle - U-District - 5600 Roosevelt Way NE",
     "USA - WA - Tacoma - Lincoln District - 3726 S G St"
 ]
+
 # === Create Tiered Filter Options ===
 def parse_facility_parts(facility_string):
     parts = facility_string.split(" - ")
