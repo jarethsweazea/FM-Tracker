@@ -42,7 +42,7 @@ for col in date_columns:
 # === Streamlit Setup ===
 st.set_page_config(layout="wide")
 st.title("📍 West Region Project Tracker")
-tabs = st.tabs(["📋 Project Dashboard", "🛠️ Maintenance Tickets"])
+tabs = st.tabs(["📋 Project Dashboard", "🚰 Maintenance Tickets"])
 
 # === Color Tag Logic ===
 status_colors = {
@@ -93,7 +93,7 @@ def fetch_open_work_orders():
     if not token:
         return pd.DataFrame(), "Unable to retrieve access token."
     headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
-    params = {"status": "Open", "limit": 100, "region": "West"}
+    params = {"status": "Open", "limit": 100}
     response = requests.get("https://api.servicechannel.com/v3/workorders", headers=headers, params=params)
     if response.ok:
         data = response.json()
@@ -135,7 +135,7 @@ with tabs[0]:
             if not recent.empty:
                 last_ts = recent["Timestamp"].max()
                 remaining = 7 - (datetime.now() - last_ts).days
-                st.markdown(f"🚫 Update request unavailable. Last sent on {last_ts.strftime('%b %d, %Y')} — available again in {remaining} day(s).")
+                st.markdown(f"🛑 Update request unavailable. Last sent on {last_ts.strftime('%b %d, %Y')} — available again in {remaining} day(s).")
             else:
                 if st.button(f"Request Update for {project}", key=f"button_{project}"):
                     webhook_url = "https://hooks.zapier.com/hooks/catch/18073884/2cco9aa/"
