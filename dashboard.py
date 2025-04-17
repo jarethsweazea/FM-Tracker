@@ -64,8 +64,39 @@ full_facility_list = [
     "USA - WA - Seattle - U-District - 5600 Roosevelt Way NE",
     "USA - WA - Tacoma - Lincoln District - 3726 S G St"
 ]
+# === Create Tiered Filter Options ===
+def parse_facility_parts(facility_string):
+    parts = facility_string.split(" - ")
+    return {
+        "region": parts[0],
+        "state": parts[1],
+        "city": parts[2],
+        "label": " - ".join(parts[1:])  # For display
+    }
 
-# (Facility list preserved from previous input for brevity)
+parsed_facilities = [parse_facility_parts(f) for f in full_facility_list]
+
+region_options = sorted(set(f["region"] for f in parsed_facilities))
+selected_region = st.sidebar.selectbox("Select Region", ["All"] + region_options)
+
+state_options = sorted(set(f["state"] for f in parsed_facilities if selected_region == "All" or f["region"] == selected_region))
+selected_state = st.sidebar.selectbox("Select State", ["All"] + state_options)
+
+city_options = sorted(set(f["city"] for f in parsed_facilities if 
+    (selected_region == "All" or f["region"] == selected_region) and
+    (selected_state == "All" or f["state"] == selected_state)
+))
+selected_city = st.sidebar.selectbox("Select City", ["All"] + city_options)
+
+filtered_facilities = [
+    f["label"] for f in parsed_facilities
+    if (selected_region in ["All", f["region"]]) and
+       (selected_state in ["All", f["state"]]) and
+       (selected_city in ["All", f["city"]])
+]
+
+selected_facility = st.sidebar.selectbox("Select Facility", ["All"] + filtered_facilities)
+
 
 # === Load and prepare project data ===
 df = pd.read_csv(sheet_url, skiprows=1)
