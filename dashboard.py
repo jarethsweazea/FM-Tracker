@@ -42,7 +42,7 @@ for col in date_columns:
 # === Streamlit Setup ===
 st.set_page_config(layout="wide")
 st.title("📍 West Region Project Tracker")
-tabs = st.tabs(["📋 Project Dashboard", "💠 Maintenance Tickets"])
+tabs = st.tabs(["📋 Project Dashboard", "🔠 Maintenance Tickets"])
 
 # === Color Tag Logic ===
 status_colors = {
@@ -87,16 +87,17 @@ def get_servicechannel_token():
     else:
         return None
 
-# === Fetch Single Work Order ===
-def fetch_single_work_order(wo_number):
+# === Fetch All Work Orders ===
+def fetch_all_open_work_orders():
     token = get_servicechannel_token()
     if not token:
         return pd.DataFrame(), "Unable to retrieve access token."
     headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
-    url = f"https://api.servicechannel.com/v3/workorders/{wo_number}"
-    response = requests.get(url, headers=headers)
+    url = "https://api.servicechannel.com/v3/workorders"
+    params = {"status": "Open", "limit": 100}
+    response = requests.get(url, headers=headers, params=params)
     if response.ok:
-        return pd.json_normalize(response.json()), None
+        return pd.json_normalize(response.json().get("workOrders", [])), None
     return pd.DataFrame(), f"API error: {response.status_code}"
 
 # === Project Dashboard ===
@@ -158,12 +159,13 @@ with tabs[0]:
 # === Tab 2: Maintenance Tickets ===
 with tabs[1]:
     st.header("Open Maintenance Tickets")
-    test_wo_number = "310663578"
-    result_df, result_error = fetch_single_work_order(test_wo_number)
-    if result_error:
-        st.error(result_error)
+    ticket_df, ticket_error = fetch_all_open_work_orders()
+    if ticket_error:
+        st.error(ticket_error)
+    elif ticket_df.empty:
+        st.warning("No work order data found.")
     else:
-        st.dataframe(result_df)
+        st.dataframe(ticket_df)
 
 st.markdown("---")
 st.caption("Live synced with Google Sheets. Data updates automatically. Update requests are limited to once every 7 days per project.")
