@@ -42,7 +42,7 @@ for col in date_columns:
 # === Streamlit Setup ===
 st.set_page_config(layout="wide")
 st.title("📍 West Region Project Tracker")
-tabs = st.tabs(["📋 Project Dashboard", "🚰 Maintenance Tickets"])
+tabs = st.tabs(["📋 Project Dashboard", "💠 Maintenance Tickets"])
 
 # === Color Tag Logic ===
 status_colors = {
@@ -87,41 +87,35 @@ def get_servicechannel_token():
     else:
         return None
 
-# === Fetch Open Tickets via /v3/workorders/search ===
-def fetch_open_work_orders():
+# === Fetch Single Work Order ===
+def fetch_single_work_order(wo_number):
     token = get_servicechannel_token()
     if not token:
         return pd.DataFrame(), "Unable to retrieve access token."
-    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-    payload = {
-        "statuses": ["Open"],
-        "dateRange": {
-            "startDate": "2024-01-01T00:00:00",
-            "endDate": "2025-12-31T23:59:59"
-        },
-        "limit": 100
-    }
-    response = requests.post("https://api.servicechannel.com/v3/workorders/search", headers=headers, json=payload)
+    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
+    url = f"https://api.servicechannel.com/v3/workorders/{wo_number}"
+    response = requests.get(url, headers=headers)
     if response.ok:
-        data = response.json()
-        if isinstance(data, dict) and "workOrders" in data:
-            return pd.DataFrame(data["workOrders"]), None
-        return pd.DataFrame(), "No work order data found."
+        return pd.json_normalize(response.json()), None
     return pd.DataFrame(), f"API error: {response.status_code}"
 
-# === Tab 1: Project Dashboard ===
+# === Project Dashboard ===
 with tabs[0]:
+    st.subheader("Projects")
     facility_list = sorted(df["Facility"].unique())
-    selected_facility = st.selectbox("Select Facility", ["All"] + facility_list)
-    filtered_df = df if selected_facility == "All" else df[df["Facility"] == selected_facility]
+    selected_facility = st.sidebar.selectbox("Select Facility", ["All"] + facility_list)
 
-    st.subheader(f"Projects at {selected_facility}" if selected_facility != "All" else "All Projects")
+    if selected_facility != "All":
+        filtered_df = df[df["Facility"] == selected_facility]
+    else:
+        filtered_df = df
+
     for project in filtered_df["Project Name"].unique():
         project_data = filtered_df[filtered_df["Project Name"] == project].iloc[0]
         color = get_status_color(project_data["STATUS"])
-        with st.expander(label=project, expanded=False):
+        with st.expander(f"{project}", expanded=False):
             status_tag = f"<span style='background-color:{color};color:white;padding:3px 8px;margin-right:10px;border-radius:4px;font-size:13px'>{project_data['STATUS']}</span>"
-            st.markdown(f"{status_tag}", unsafe_allow_html=True)
+            st.markdown(status_tag, unsafe_allow_html=True)
             st.markdown(f"**Recent Update:** {project_data['Recent Status Update']}")
             st.markdown(f"**Project Summary:** {project_data['Project Summary']}")
             st.markdown(f"**Phase:** {project_data['Phase']}")
@@ -134,28 +128,28 @@ with tabs[0]:
             st.markdown(f"**Project Code:** {project_data['Project Code']}")
             st.markdown(f"**Completion Status:** {project_data['Completion Status']}")
 
-            project_clean = str(project).strip()
+            project_name_clean = str(project).strip()
             facility_clean = str(project_data["Facility"]).strip()
-            recent = log_df[(log_df["Project Name"] == project_clean) & (log_df["Facility"] == facility_clean)]
-            recent = recent[recent["Timestamp"] >= datetime.now() - timedelta(days=7)]
+            recent_request = log_df[(log_df["Project Name"] == project_name_clean) & (log_df["Facility"] == facility_clean)]
+            recent_request = recent_request[recent_request["Timestamp"] >= datetime.now() - timedelta(days=7)]
 
-            if not recent.empty:
-                last_ts = recent["Timestamp"].max()
-                remaining = 7 - (datetime.now() - last_ts).days
-                st.markdown(f"🛑 Update request unavailable. Last sent on {last_ts.strftime('%b %d, %Y')} — available again in {remaining} day(s).")
+            if not recent_request.empty:
+                last_ts = recent_request["Timestamp"].max()
+                days_remaining = 7 - (datetime.now() - last_ts).days
+                st.markdown(f"🚫 Update request unavailable. Last sent on {last_ts.strftime('%b %d, %Y')} — available again in {days_remaining} day(s).")
             else:
                 if st.button(f"Request Update for {project}", key=f"button_{project}"):
-                    webhook_url = "https://hooks.zapier.com/hooks/catch/18073884/2cco9aa/"
-                    payload = {
-                        "project_name": str(project),
-                        "facility": str(project_data['Facility']),
-                        "status": str(project_data['STATUS']),
-                        "wo": str(project_data['WO#']),
-                        "sheet_link": gsheet_edit_url,
-                        "timestamp": datetime.now().isoformat()
-                    }
+                    zapier_webhook_url = "https://hooks.zapier.com/hooks/catch/18073884/2cco9aa/"
                     try:
-                        requests.post(webhook_url, json=payload, timeout=5)
+                        payload = {
+                            "project_name": str(project),
+                            "facility": str(project_data['Facility']),
+                            "status": str(project_data['STATUS']),
+                            "wo": str(project_data['WO#']),
+                            "sheet_link": gsheet_edit_url,
+                            "timestamp": datetime.now().isoformat()
+                        }
+                        requests.post(zapier_webhook_url, json=payload, timeout=5)
                         st.success("Update request sent via Slack and logged successfully.")
                     except Exception as e:
                         st.error("Failed to send update request.")
@@ -164,13 +158,12 @@ with tabs[0]:
 # === Tab 2: Maintenance Tickets ===
 with tabs[1]:
     st.header("Open Maintenance Tickets")
-    ticket_df, ticket_error = fetch_open_work_orders()
-    if ticket_error:
-        st.error(ticket_error)
-    elif not ticket_df.empty:
-        st.dataframe(ticket_df)
+    test_wo_number = "310663578"
+    result_df, result_error = fetch_single_work_order(test_wo_number)
+    if result_error:
+        st.error(result_error)
     else:
-        st.info("No open work orders available — check if your account has access to regional or location-level data.")
+        st.dataframe(result_df)
 
 st.markdown("---")
 st.caption("Live synced with Google Sheets. Data updates automatically. Update requests are limited to once every 7 days per project.")
