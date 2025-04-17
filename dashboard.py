@@ -87,14 +87,21 @@ def get_servicechannel_token():
     else:
         return None
 
-# === Fetch Open Tickets ===
+# === Fetch Open Tickets via /v3/workorders/search ===
 def fetch_open_work_orders():
     token = get_servicechannel_token()
     if not token:
         return pd.DataFrame(), "Unable to retrieve access token."
-    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
-    params = {"status": "Open", "limit": 100}
-    response = requests.get("https://api.servicechannel.com/v3/workorders", headers=headers, params=params)
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    payload = {
+        "statuses": ["Open"],
+        "dateRange": {
+            "startDate": "2024-01-01T00:00:00",
+            "endDate": "2025-12-31T23:59:59"
+        },
+        "limit": 100
+    }
+    response = requests.post("https://api.servicechannel.com/v3/workorders/search", headers=headers, json=payload)
     if response.ok:
         data = response.json()
         if isinstance(data, dict) and "workOrders" in data:
