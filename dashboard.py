@@ -74,9 +74,9 @@ full_facility_list = [
 def parse_facility_parts(facility_string):
     parts = facility_string.split(" - ")
     return {
-        "state": parts[2],
-        "city": parts[3],
-        "label": parts[-1]  # Changed back to show only address as label
+        "state": parts[1],
+        "city": parts[2],
+        "label": parts[-1]  # Address
     }
 
 
