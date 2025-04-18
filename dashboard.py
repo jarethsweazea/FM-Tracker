@@ -303,11 +303,6 @@ with tabs[1]:
     elif ticket_df.empty:
         st.info("No work order data available.")
     else:
-                # Format CallDate safely
-        if "CallDate" in ticket_df.columns:
-            ticket_df["CallDate"] = pd.to_datetime(ticket_df["CallDate"], errors="coerce")
-            if pd.api.types.is_datetime64_any_dtype(ticket_df["CallDate"]):
-                ticket_df.loc[ticket_df["CallDate"].notna(), "CallDate"] = ticket_df.loc[ticket_df["CallDate"].notna(), "CallDate"].dt.strftime("%m/%d/%Y %I:%M %p")
 
         # Format Notes.Last.Date.Created safely
         if "Notes.Last.Date.Created" in ticket_df.columns:
@@ -322,7 +317,6 @@ with tabs[1]:
         ticket_df = ticket_df.rename(columns={
             "Number": "WO Number",
             "Caller": "Requested By",
-            "CallDate": "Requested Date",
             "Priority": "Priority",
             "Trade": "Trade",
             "ScheduledDate": "Scheduled",
