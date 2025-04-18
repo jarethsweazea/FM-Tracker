@@ -304,14 +304,14 @@ with tabs[1]:
     else:
         # === Parse and filter ticket data ===
         def extract_ticket_parts(location_id):
-    try:
-        parts = location_id.split(".")
-        state = parts[0]
-        city = parts[1]
-        address = ".".join(parts[3:]) if len(parts) >= 4 else ""
-        return {"state": state, "city": city, "address": address}
-    except:
-        return {"state": "", "city": "", "address": ""}
+            try:
+                parts = location_id.split(".")
+                state = parts[0]
+                city = parts[1]
+                address = ".".join(parts[3:]) if len(parts) >= 4 else ""
+                return {"state": state, "city": city, "address": address}
+            except:
+                return {"state": "", "city": "", "address": ""}
 
         ticket_parts = ticket_df["LocationId"].astype(str).apply(extract_ticket_parts)
         ticket_df["state"] = ticket_parts.apply(lambda x: x["state"])
@@ -330,6 +330,7 @@ with tabs[1]:
             st.info("No maintenance tickets found for this selection.")
         else:
             st.dataframe(ticket_df)
+
 
 st.markdown("---")
 st.caption("Live synced with Google Sheets. Data updates automatically. Update requests are limited to once every 7 days per project.")
