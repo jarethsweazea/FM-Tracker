@@ -135,21 +135,15 @@ for col in date_columns:
 # === Normalize the Facility column from the Sheet ===
 def extract_parts(facility):
     try:
-        parts = facility.split("_")
+        state, city, *address_parts = facility.split("_")
         return {
-            "state": parts[0],
-            "city": parts[1],
-            "address": "_".join(parts[2:])
+            "state": state,
+            "city": city if not address_parts else city + ("_" + address_parts[0] if len(address_parts) > 1 else ""),
+            "address": "_".join(address_parts[1:]) if len(address_parts) > 1 else (address_parts[0] if address_parts else "")
         }
     except:
         return {"state": "", "city": "", "address": ""}
 
-facility_parts = df["Facility"].apply(extract_parts)
-df["state"] = facility_parts.apply(lambda x: x["state"])
-df["city"] = facility_parts.apply(lambda x: x["city"])
-df["address"] = facility_parts.apply(lambda x: x["address"])
-st.write("Sample Facility Values from Sheet:")
-st.write(df[["Facility", "state", "city", "address"]].head(10))
 
 
 # === Apply filter selections ===
