@@ -303,15 +303,18 @@ with tabs[1]:
     elif ticket_df.empty:
         st.info("No work order data available.")
     else:
-        # Format CallDate if present
+                # Format CallDate safely
         if "CallDate" in ticket_df.columns:
             ticket_df["CallDate"] = pd.to_datetime(ticket_df["CallDate"], errors="coerce")
-            ticket_df.loc[ticket_df["CallDate"].notna(), "CallDate"] = ticket_df["CallDate"].dt.strftime("%m/%d/%Y %I:%M %p")
+            if pd.api.types.is_datetime64_any_dtype(ticket_df["CallDate"]):
+                ticket_df.loc[ticket_df["CallDate"].notna(), "CallDate"] = ticket_df.loc[ticket_df["CallDate"].notna(), "CallDate"].dt.strftime("%m/%d/%Y %I:%M %p")
 
-        # Format Last Note Created Date if present
+        # Format Notes.Last.Date.Created safely
         if "Notes.Last.Date.Created" in ticket_df.columns:
             ticket_df["Notes.Last.Date.Created"] = pd.to_datetime(ticket_df["Notes.Last.Date.Created"], errors="coerce")
-            ticket_df.loc[ticket_df["Notes.Last.Date.Created"].notna(), "Notes.Last.Date.Created"] = ticket_df["Notes.Last.Date.Created"].dt.strftime("%m/%d/%Y %I:%M %p")
+            if pd.api.types.is_datetime64_any_dtype(ticket_df["Notes.Last.Date.Created"]):
+                ticket_df.loc[ticket_df["Notes.Last.Date.Created"].notna(), "Notes.Last.Date.Created"] = ticket_df.loc[ticket_df["Notes.Last.Date.Created"].notna(), "Notes.Last.Date.Created"].dt.strftime("%m/%d/%Y %I:%M %p")
+
 
 
 
