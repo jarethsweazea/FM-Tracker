@@ -209,22 +209,33 @@ def fetch_all_open_work_orders():
     if not token:
         return pd.DataFrame(), "Unable to retrieve access token."
 
-    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+
     url = "https://api.servicechannel.com/v3/odata/workorders"
     params = {
-    "$select": "Id,Number,LocationId,Caller,CreatedBy,CallDate,Priority,Trade,ApprovalCode",
-    "$filter": "Status/Primary eq 'OPEN'",
-    "$top": 1000
-}
+        "$select": "Id,Number,LocationId,Caller,CreatedBy,CallDate,Priority,Trade,ApprovalCode",
+        "$filter": "Status/Primary eq 'OPEN'",
+        "$top": 1000
+    }
 
+    all_results = []
     try:
-        response = requests.get(url, headers=headers, params=params)
-        if not response.ok:
-            return pd.DataFrame(), f"API error {response.status_code}: {response.text}"
-        data = response.json()
-        return pd.json_normalize(data.get("value", [])), None
+        while url:
+            response = requests.get(url, headers=headers, params=params)
+            if not response.ok:
+                return pd.DataFrame(), f"API error {response.status_code}: {response.text}"
+            data = response.json()
+            all_results.extend(data.get("value", []))
+            url = data.get("@odata.nextLink")  # Follow next page
+            params = None  # Only include params on first request
+        return pd.json_normalize(all_results), None
+
     except Exception as e:
         return pd.DataFrame(), f"Exception fetching work orders: {str(e)}"
+
 
 # === Project Dashboard ===
 with tabs[0]:
