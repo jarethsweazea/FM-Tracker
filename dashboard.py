@@ -220,7 +220,7 @@ def fetch_all_open_work_orders():
         "Number,Caller,CallDate,Priority,Trade,ScheduledDate,"
         "Description,Category,Nte,"
         "Status/Primary,Status/Extended,"
-        "Notes/Last/Notes/Data,Notes/Last/Date/Created"
+        "Notes/Last/Note/Data,Notes/Last/Date/Created"
     ),
     "$filter": "Status/Primary eq 'OPEN' or Status/Primary eq 'IN PROGRESS' or Status/Primary eq 'PENDING'",
     "$top": 1000
@@ -309,11 +309,14 @@ with tabs[1]:
     elif ticket_df.empty:
         st.info("No work order data available.")
     else:
-        # Format timestamps
+        # Normalize full JSON into flat columns
+        ticket_df = pd.json_normalize(ticket_df)
+
+        # Format dates
         ticket_df["CallDate"] = pd.to_datetime(ticket_df.get("CallDate"), errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
         ticket_df["Notes.Last.Date.Created"] = pd.to_datetime(ticket_df.get("Notes.Last.Date.Created"), errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
 
-        # Rename columns for readability
+        # Rename columns
         ticket_df = ticket_df.rename(columns={
             "Number": "WO Number",
             "Caller": "Requested By",
@@ -330,19 +333,14 @@ with tabs[1]:
             "Notes.Last.Date.Created": "Note Timestamp"
         })
 
-        # Columns to display
+        # Define which columns to show
         display_cols = [
             "WO Number", "Requested By", "Requested Date", "Priority", "Trade", "Scheduled",
             "Problem Description", "Category", "NTE", "Status", "Status Detail", "Latest Note", "Note Timestamp"
         ]
-
-        # Show only available columns
         available_cols = [col for col in display_cols if col in ticket_df.columns]
 
-        if not available_cols:
-            st.warning("None of the selected fields were returned.")
-        else:
-            st.dataframe(ticket_df[available_cols])
+        st.dataframe(ticket_df[available_cols])
 
 
 st.markdown("---")
