@@ -211,10 +211,11 @@ def fetch_all_open_work_orders():
 
     headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
     url = "https://api.servicechannel.com/v3/odata/workorders"
-   params = {
-    "$select": "Id",  # Only use fields you know are valid
-    "$filter": "Status/Primary eq 'OPEN'"
-}
+     params = {
+        "$select": "Id,Number,PurchaseOrderNumber,LocationId,Caller,CreatedBy,CallDate,Priority,Trade,ApprovalCode",
+        "$filter": "Status/Primary eq 'OPEN'",
+        "$top": 1000
+    }
 
 
     try:
