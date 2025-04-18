@@ -303,8 +303,16 @@ with tabs[1]:
     elif ticket_df.empty:
         st.info("No work order data available.")
     else:
-        # Normalize full JSON into flat columns
-        ticket_df = pd.json_normalize(ticket_df)
+    # Normalize nested fields
+    ticket_df = pd.json_normalize(ticket_df)
+
+    # Check if 'CallDate' exists before formatting
+        if "CallDate" in ticket_df.columns:
+        ticket_df["CallDate"] = pd.to_datetime(ticket_df["CallDate"], errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
+
+        if "Notes.Last.Date.Created" in ticket_df.columns:
+        ticket_df["Notes.Last.Date.Created"] = pd.to_datetime(ticket_df["Notes.Last.Date.Created"], errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
+
 
         # Format dates
         ticket_df["CallDate"] = pd.to_datetime(ticket_df.get("CallDate"), errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
