@@ -220,7 +220,7 @@ def fetch_all_open_work_orders():
         "Number,Caller,CallDate,Priority,Trade,ScheduledDate,"
         "Description,Category,Nte,"
         "Status/Primary,Status/Extended,"
-        "Notes/Last/Note/Data,Notes/Last/Date/Created"
+        "Notes/Last/Notes/Data,Notes/Last/Date/Created"
     ),
     "$filter": "Status/Primary eq 'OPEN' or Status/Primary eq 'IN PROGRESS' or Status/Primary eq 'PENDING'",
     "$top": 1000
