@@ -303,22 +303,18 @@ with tabs[1]:
     elif ticket_df.empty:
         st.info("No work order data available.")
     else:
-    # Normalize nested fields
-    ticket_df = pd.json_normalize(ticket_df)
+        # Normalize nested fields
+        ticket_df = pd.json_normalize(ticket_df)
 
-    # Check if 'CallDate' exists before formatting
-    if "CallDate" in ticket_df.columns:
-        ticket_df["CallDate"] = pd.to_datetime(ticket_df["CallDate"], errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
+        # Format CallDate if available
+        if "CallDate" in ticket_df.columns:
+            ticket_df["CallDate"] = pd.to_datetime(ticket_df["CallDate"], errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
 
-    if "Notes.Last.Date.Created" in ticket_df.columns:
-        ticket_df["Notes.Last.Date.Created"] = pd.to_datetime(ticket_df["Notes.Last.Date.Created"], errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
+        # Format Last Note Date if available
+        if "Notes.Last.Date.Created" in ticket_df.columns:
+            ticket_df["Notes.Last.Date.Created"] = pd.to_datetime(ticket_df["Notes.Last.Date.Created"], errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
 
-
-        # Format dates
-        ticket_df["CallDate"] = pd.to_datetime(ticket_df.get("CallDate"), errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
-        ticket_df["Notes.Last.Date.Created"] = pd.to_datetime(ticket_df.get("Notes.Last.Date.Created"), errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
-
-        # Rename columns
+        # Rename columns for readability
         ticket_df = ticket_df.rename(columns={
             "Number": "WO Number",
             "Caller": "Requested By",
@@ -335,7 +331,6 @@ with tabs[1]:
             "Notes.Last.Date.Created": "Note Timestamp"
         })
 
-        # Define which columns to show
         display_cols = [
             "WO Number", "Requested By", "Requested Date", "Priority", "Trade", "Scheduled",
             "Problem Description", "Category", "NTE", "Status", "Status Detail", "Latest Note", "Note Timestamp"
@@ -343,6 +338,7 @@ with tabs[1]:
         available_cols = [col for col in display_cols if col in ticket_df.columns]
 
         st.dataframe(ticket_df[available_cols])
+
 
 
 st.markdown("---")
