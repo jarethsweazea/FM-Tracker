@@ -225,6 +225,7 @@ def fetch_all_open_work_orders():
     "$filter": "Status/Primary eq 'OPEN' or Status/Primary eq 'IN PROGRESS' or Status/Primary eq 'PENDING'",
     "$top": 1000
 }
+ 
 
 
 
@@ -308,36 +309,40 @@ with tabs[1]:
     elif ticket_df.empty:
         st.info("No work order data available.")
     else:
-        # === Parse and filter ticket data ===
-        def extract_ticket_parts(location_id):
-            try:
-                parts = location_id.split(".")
-                state = parts[0]
-                city = parts[1]
-                address = ".".join(parts[3:]) if len(parts) >= 4 else ""
-                return {"state": state, "city": city, "address": address}
-            except:
-                return {"state": "", "city": "", "address": ""}
+        # Format timestamps
+        ticket_df["CallDate"] = pd.to_datetime(ticket_df.get("CallDate"), errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
+        ticket_df["Notes.Last.Date.Created"] = pd.to_datetime(ticket_df.get("Notes.Last.Date.Created"), errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
 
-        ticket_parts = ticket_df["LocationId"].astype(str).apply(extract_ticket_parts)
-        ticket_df["state"] = ticket_parts.apply(lambda x: x["state"])
-        ticket_df["city"] = ticket_parts.apply(lambda x: x["city"])
-        ticket_df["address"] = ticket_parts.apply(lambda x: x["address"])
+        # Rename columns for readability
+        ticket_df = ticket_df.rename(columns={
+            "Number": "WO Number",
+            "Caller": "Requested By",
+            "CallDate": "Requested Date",
+            "Priority": "Priority",
+            "Trade": "Trade",
+            "ScheduledDate": "Scheduled",
+            "Description": "Problem Description",
+            "Category": "Category",
+            "Nte": "NTE",
+            "Status.Primary": "Status",
+            "Status.Extended": "Status Detail",
+            "Notes.Last.Note.Data": "Latest Note",
+            "Notes.Last.Date.Created": "Note Timestamp"
+        })
 
-        # === Apply sidebar filters ===
-        st.write(ticket_df[["LocationId", "state", "city", "address"]].head(10))
+        # Columns to display
+        display_cols = [
+            "WO Number", "Requested By", "Requested Date", "Priority", "Trade", "Scheduled",
+            "Problem Description", "Category", "NTE", "Status", "Status Detail", "Latest Note", "Note Timestamp"
+        ]
 
-        if selected_facility != "All":
-            ticket_df = ticket_df[ticket_df["address"].str.strip() == selected_facility.strip()]
-        elif selected_city != "All":
-            ticket_df = ticket_df[ticket_df["city"].str.strip() == selected_city.strip()]
-        elif selected_state != "All":
-            ticket_df = ticket_df[ticket_df["state"].str.strip() == selected_state.strip()]
+        # Show only available columns
+        available_cols = [col for col in display_cols if col in ticket_df.columns]
 
-        if ticket_df.empty:
-            st.info("No maintenance tickets found for this selection.")
+        if not available_cols:
+            st.warning("None of the selected fields were returned.")
         else:
-            st.dataframe(ticket_df)
+            st.dataframe(ticket_df[available_cols])
 
 
 st.markdown("---")
