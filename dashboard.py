@@ -303,17 +303,17 @@ with tabs[1]:
         st.info("No work order data available.")
     else:
         # === Parse and filter ticket data ===
-        def extract_ticket_parts(location_name):
-            try:
-                parts = location_name.split("_")
-                state = parts[0]
-                city = parts[1]
-                address = "_".join(parts[2:])
-                return {"state": state, "city": city, "address": address}
-            except:
-                return {"state": "", "city": "", "address": ""}
+        def extract_ticket_parts(location_id):
+    try:
+        parts = location_id.split(".")
+        state = parts[0]
+        city = parts[1]
+        address = ".".join(parts[3:]) if len(parts) >= 4 else ""
+        return {"state": state, "city": city, "address": address}
+    except:
+        return {"state": "", "city": "", "address": ""}
 
-        ticket_parts = ticket_df["LocationName"].apply(extract_ticket_parts)
+        ticket_parts = ticket_df["LocationId"].astype(str).apply(extract_ticket_parts)
         ticket_df["state"] = ticket_parts.apply(lambda x: x["state"])
         ticket_df["city"] = ticket_parts.apply(lambda x: x["city"])
         ticket_df["address"] = ticket_parts.apply(lambda x: x["address"])
