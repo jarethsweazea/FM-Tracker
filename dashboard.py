@@ -148,6 +148,9 @@ facility_parts = df["Facility"].apply(extract_parts)
 df["state"] = facility_parts.apply(lambda x: x["state"])
 df["city"] = facility_parts.apply(lambda x: x["city"])
 df["address"] = facility_parts.apply(lambda x: x["address"])
+st.write("Sample Facility Values from Sheet:")
+st.write(df[["Facility", "state", "city", "address"]].head(10))
+
 
 # === Apply filter selections ===
 if selected_facility != "All":
