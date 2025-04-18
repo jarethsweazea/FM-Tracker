@@ -228,7 +228,7 @@ def fetch_all_open_work_orders():
 # === Project Dashboard ===
 with tabs[0]:
     st.subheader("Projects")
-    filtered_df = df[df["Facility"].isin(filtered_facilities)]
+    filtered_df = df
 
     if filtered_df.empty:
         st.warning("No projects in progress for this selection.")
