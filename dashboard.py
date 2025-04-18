@@ -216,10 +216,11 @@ def fetch_all_open_work_orders():
 
     url = "https://api.servicechannel.com/v3/odata/workorders"
     params = {
-        "$select": "Id,Number,LocationId,Caller,CreatedBy,CallDate,Priority,Trade,ApprovalCode",
-        "$filter": "Status/Primary eq 'OPEN'",
-        "$top": 1000
-    }
+    "$select": "Id,Number,LocationId,Caller,CreatedBy,CallDate,Priority,Trade,ApprovalCode",
+    "$filter": "Status/Primary eq 'OPEN' or Status/Primary eq 'IN PROGRESS' or Status/Primary eq 'PENDING'",
+    "$top": 1000
+}
+
 
     all_results = []
     try:
