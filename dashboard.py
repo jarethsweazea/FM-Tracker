@@ -128,14 +128,6 @@ df = df.rename(columns={
     df.columns[29]: "Completion Photos",
 })
 df = df.dropna(subset=["Facility", "Project Name"])
-facility_parts = df["Facility"].apply(extract_parts)
-df["state"] = facility_parts.apply(lambda x: x["state"])
-df["city"] = facility_parts.apply(lambda x: x["city"])
-df["address"] = facility_parts.apply(lambda x: x["address"])
-date_columns = ["Creation Date", "Initial Work Date", "Expected Completion Date", "Est. Start", "Actual Start", "Est. Completion", "Actual Completion"]
-for col in date_columns:
-    df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%m/%d/%Y')
-
 # === Normalize the Facility column from the Sheet ===
 def extract_parts(facility):
     try:
@@ -146,6 +138,15 @@ def extract_parts(facility):
         return {"state": state, "city": city, "address": address}
     except:
         return {"state": "", "city": "", "address": ""}
+
+facility_parts = df["Facility"].apply(extract_parts)
+df["state"] = facility_parts.apply(lambda x: x["state"])
+df["city"] = facility_parts.apply(lambda x: x["city"])
+df["address"] = facility_parts.apply(lambda x: x["address"])
+date_columns = ["Creation Date", "Initial Work Date", "Expected Completion Date", "Est. Start", "Actual Start", "Est. Completion", "Actual Completion"]
+for col in date_columns:
+    df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%m/%d/%Y')
+
 
 
 # === Apply filter selections ===
