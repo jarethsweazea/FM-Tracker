@@ -16,69 +16,69 @@ update_log_sheet_id = "1TAPw-tXHcYZRuZpSgcZs3TWs1AifGoAudEYVvB20lXs"
 
 # === Full West Region Facility List ===
 full_facility_list = [
-    "USA - AZ - Phoenix - Midtown - 720 W Highland Ave",
-    "USA - AZ - Tempe - ASU - 1900 E 5th St",
-    "USA - AZ - Tucson - U of A - 613 E Delano St",
-    "USA - CA - Anaheim - Anaheim Resort - 1560 S Lewis St",
-    "USA - CA - Costa Mesa - Triangle Square - 1750 Newport Blvd",
-    "USA - CA - Culver City - Fox Hills - 5668 Selmaraine Dr",
-    "USA - CA - Hayward - Hayward - 1025 A St",
-    "USA - CA - Huntington Beach - Downtown - 17531 Griffin Ln",
-    "USA - CA - Lawndale - South Bay - 16711 Hawthorne Blvd",
-    "USA - CA - Long Beach - Downtown - 1388 Daisy Ave",
-    "USA - CA - Los Angeles - Alhambra - 5477 Alhambra Ave",
-    "USA - CA - Los Angeles - Beverly Hills - 8600 W Pico Blvd",
-    "USA - CA - Los Angeles - Downtown - 417 S Hill St",
-    "USA - CA - Los Angeles - Echo Park - 1411 W Sunset Blvd",
-    "USA - CA - Los Angeles - Hollywood - 615 N Western Ave",
-    "USA - CA - Los Angeles - Koreatown - 1842 W Washington Blvd",
-    "USA - CA - Los Angeles - Mid-City - 5443 W Pico Blvd",
-    "USA - CA - Los Angeles - Santa Monica - 3000 S Bundy Dr",
-    "USA - CA - Los Angeles - Silverlake - 3446 John St",
-    "USA - CA - Los Angeles - University Park - 358 W 38th St",
-    "USA - CA - Los Angeles - West LA - 2352 S Sepulveda Blvd",
-    "USA - CA - Mountain View - Downtown - 2150 Old Middlefield Way",
-    "USA - CA - Oakland - Berkeley - 5333 Adeline St",
-    "USA - CA - Oakland - Downtown - 2353 E 12th St",
-    "USA - CA - Oceanside - North County - 3760 Oceanic Way",
-    "USA - CA - Pasadena - Old Town - 1060 E Colorado Blvd",
-    "USA - CA - Redwood City - Downtown - 426 MacArthur Ave",
-    "USA - CA - Sacramento - Downtown - 1501 N C St",
-    "USA - CA - San Diego - Downtown - 2707 Boston Ave",
-    "USA - CA - San Diego - SDSU - 6334 El Cajon Blvd",
-    "USA - CA - San Francisco - Lower Mission - 90 Charter Oak Ave",
-    "USA - CA - San Francisco - SoMa - 475 6th St",
-    "USA - CA - San Francisco - Union Square - 1200 Market St",
-    "USA - CA - San Jose - Downtown - 96 E Santa Clara St",
-    "USA - CA - San Jose - North - 949 Ruff Dr",
-    "USA - CA - San Mateo - Downtown - 66 21st Ave",
-    "USA - CA - Santa Ana - South Coast Metro - 2509 S Broadway",
-    "USA - CA - Sunnyvale - Downtown - 1026 W Evelyn Ave",
-    "USA - CA - Van Nuys - San Fernando Valley - 14435 Victory Blvd",
-    "USA - CO - Aurora - Town Center Mall - 14200 E Alameda Ave",
-    "USA - CO - Denver - Downtown - 810 N Vallejo St",
-    "USA - CO - Denver - South - 2171 S Grape St",
-    "USA - ID - Boise - West End - 1744 W Main St",
-    "USA - NV - Las Vegas - Durango - 4215 S Durango Dr",
-    "USA - NV - Las Vegas - North Strip - 333 W St Louis Ave",
-    "USA - NV - Las Vegas - Summerlin - 110 S Rainbow Blvd",
-    "USA - OR - Portland - Inner Southeast - 1135 SE Grand Ave",
-    "USA - UT - Salt Lake City - Downtown - 23 N 900 W",
-    "USA - WA - Seattle - Capitol Hill - 1525 13th Ave",
-    "USA - WA - Seattle - South Lake Union - 1601 Dexter Ave N",
-    "USA - WA - Seattle - U-District - 5600 Roosevelt Way NE",
-    "USA - WA - Tacoma - Lincoln District - 3726 S G St"
+    "AZ_Phoenix_720 W Highland Ave",
+    "AZ_Tempe_1900 E 5th St",
+    "AZ_Tucson_613 E Delano St",
+    "CA_Anaheim_1560 S Lewis St",
+    "CA_Costa Mesa_1750 Newport Blvd",
+    "CA_Culver City_5668 Selmaraine Dr",
+    "CA_Hayward_1025 A St",
+    "CA_Huntington Beach_17531 Griffin Ln",
+    "CA_Lawndale_16711 Hawthorne Blvd",
+    "CA_Long Beach_1388 Daisy Ave",
+    "CA_Los Angeles_5477 Alhambra Ave",
+    "CA_Los Angeles_8600 W Pico Blvd",
+    "CA_Los Angeles_417 S Hill St",
+    "CA_Los Angeles_1411 W Sunset Blvd",
+    "CA_Los Angeles_615 N Western Ave",
+    "CA_Los Angeles_1842 W Washington Blvd",
+    "CA_Los Angeles_5443 W Pico Blvd",
+    "CA_Los Angeles_3000 S Bundy Dr",
+    "CA_Los Angeles_3446 John St",
+    "CA_Los Angeles_358 W 38th St",
+    "CA_Los Angeles_2352 S Sepulveda Blvd",
+    "CA_Mountain View_2150 Old Middlefield Way",
+    "CA_Oakland_5333 Adeline St",
+    "CA_Oakland_2353 E 12th St",
+    "CA_Oceanside_3760 Oceanic Way",
+    "CA_Pasadena_1060 E Colorado Blvd",
+    "CA_Redwood City_426 MacArthur Ave",
+    "CA_Sacramento_1501 N C St",
+    "CA_San Diego_2707 Boston Ave",
+    "CA_San Diego_6334 El Cajon Blvd",
+    "CA_San Francisco_90 Charter Oak Ave",
+    "CA_San Francisco_475 6th St",
+    "CA_San Francisco_1200 Market St",
+    "CA_San Jose_96 E Santa Clara St",
+    "CA_San Jose_949 Ruff Dr",
+    "CA_San Mateo_66 21st Ave",
+    "CA_Santa Ana_2509 S Broadway",
+    "CA_Sunnyvale_1026 W Evelyn Ave",
+    "CA_Van Nuys_14435 Victory Blvd",
+    "CO_Aurora_14200 E Alameda Ave",
+    "CO_Denver_810 N Vallejo St",
+    "CO_Denver_2171 S Grape St",
+    "ID_Boise_1744 W Main St",
+    "NV_Las Vegas_4215 S Durango Dr",
+    "NV_Las Vegas_333 W St Louis Ave",
+    "NV_Las Vegas_110 S Rainbow Blvd",
+    "OR_Portland_1135 SE Grand Ave",
+    "UT_Salt Lake City_23 N 900 W",
+    "WA_Seattle_1525 13th Ave",
+    "WA_Seattle_1601 Dexter Ave N",
+    "WA_Seattle_5600 Roosevelt Way NE",
+    "WA_Tacoma_3726 S G St"
 ]
 
-# === Sidebar Filters (simplified to State, City, Facility with Reset Button) ===
-def parse_facility_parts(facility_string):
-    parts = facility_string.split(" - ")
-    return {
-        "state": parts[1],
-        "city": parts[2],
-        "label": parts[-1]  # Address
-    }
 
+# === Sidebar Filters ===
+def parse_facility_parts(facility_string):
+    parts = facility_string.split("_")
+    return {
+        "state": parts[0],
+        "city": parts[1],
+        "label": "_".join(parts[2:])  # This is the address part
+    }
 
 parsed_facilities = [parse_facility_parts(f) for f in full_facility_list]
 
@@ -99,7 +99,6 @@ with st.sidebar:
         if (selected_state in ["All", f["state"]]) and
            (selected_city in ["All", f["city"]])
     ]
-
     selected_facility = st.selectbox("Select Facility", ["All"] + filtered_facilities, key="selected_facility")
 
 
@@ -133,13 +132,14 @@ date_columns = ["Creation Date", "Initial Work Date", "Expected Completion Date"
 for col in date_columns:
     df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%m/%d/%Y')
 
+# === Normalize the Facility column from the Sheet ===
 def extract_parts(facility):
     try:
         parts = facility.split("_")
         return {
             "state": parts[0],
             "city": parts[1],
-            "address": "_".join(parts[2:])  # Handles multi-word streets
+            "address": "_".join(parts[2:])
         }
     except:
         return {"state": "", "city": "", "address": ""}
@@ -149,6 +149,7 @@ df["state"] = facility_parts.apply(lambda x: x["state"])
 df["city"] = facility_parts.apply(lambda x: x["city"])
 df["address"] = facility_parts.apply(lambda x: x["address"])
 
+# === Apply filter selections ===
 if selected_facility != "All":
     df = df[df["address"].str.strip() == selected_facility.strip()]
 elif selected_city != "All":
