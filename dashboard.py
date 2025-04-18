@@ -319,6 +319,8 @@ with tabs[1]:
         ticket_df["address"] = ticket_parts.apply(lambda x: x["address"])
 
         # === Apply sidebar filters ===
+        st.write(ticket_df[["LocationId", "state", "city", "address"]].head(10))
+
         if selected_facility != "All":
             ticket_df = ticket_df[ticket_df["address"].str.strip() == selected_facility.strip()]
         elif selected_city != "All":
