@@ -294,13 +294,42 @@ with tabs[0]:
 # === Tab 2: Maintenance Tickets ===
 with tabs[1]:
     st.subheader("Open Maintenance Tickets")
+
     ticket_df, ticket_error = fetch_all_open_work_orders()
+
     if ticket_error:
         st.error(ticket_error)
     elif ticket_df.empty:
         st.info("No work order data available.")
     else:
-        st.dataframe(ticket_df)
+        # === Parse and filter ticket data ===
+        def extract_ticket_parts(location_name):
+            try:
+                parts = location_name.split("_")
+                state = parts[0]
+                city = parts[1]
+                address = "_".join(parts[2:])
+                return {"state": state, "city": city, "address": address}
+            except:
+                return {"state": "", "city": "", "address": ""}
+
+        ticket_parts = ticket_df["LocationName"].apply(extract_ticket_parts)
+        ticket_df["state"] = ticket_parts.apply(lambda x: x["state"])
+        ticket_df["city"] = ticket_parts.apply(lambda x: x["city"])
+        ticket_df["address"] = ticket_parts.apply(lambda x: x["address"])
+
+        # === Apply sidebar filters ===
+        if selected_facility != "All":
+            ticket_df = ticket_df[ticket_df["address"].str.strip() == selected_facility.strip()]
+        elif selected_city != "All":
+            ticket_df = ticket_df[ticket_df["city"].str.strip() == selected_city.strip()]
+        elif selected_state != "All":
+            ticket_df = ticket_df[ticket_df["state"].str.strip() == selected_state.strip()]
+
+        if ticket_df.empty:
+            st.info("No maintenance tickets found for this selection.")
+        else:
+            st.dataframe(ticket_df)
 
 st.markdown("---")
 st.caption("Live synced with Google Sheets. Data updates automatically. Update requests are limited to once every 7 days per project.")
