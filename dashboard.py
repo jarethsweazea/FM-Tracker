@@ -128,6 +128,10 @@ df = df.rename(columns={
     df.columns[29]: "Completion Photos",
 })
 df = df.dropna(subset=["Facility", "Project Name"])
+facility_parts = df["Facility"].apply(extract_parts)
+df["state"] = facility_parts.apply(lambda x: x["state"])
+df["city"] = facility_parts.apply(lambda x: x["city"])
+df["address"] = facility_parts.apply(lambda x: x["address"])
 date_columns = ["Creation Date", "Initial Work Date", "Expected Completion Date", "Est. Start", "Actual Start", "Est. Completion", "Actual Completion"]
 for col in date_columns:
     df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%m/%d/%Y')
@@ -135,15 +139,13 @@ for col in date_columns:
 # === Normalize the Facility column from the Sheet ===
 def extract_parts(facility):
     try:
-        state, city, *address_parts = facility.split("_")
-        return {
-            "state": state,
-            "city": city if not address_parts else city + ("_" + address_parts[0] if len(address_parts) > 1 else ""),
-            "address": "_".join(address_parts[1:]) if len(address_parts) > 1 else (address_parts[0] if address_parts else "")
-        }
+        parts = facility.split("_")
+        state = parts[0]
+        city = parts[1]
+        address = "_".join(parts[2:])  # <- this fixes the issue
+        return {"state": state, "city": city, "address": address}
     except:
         return {"state": "", "city": "", "address": ""}
-
 
 
 # === Apply filter selections ===
