@@ -307,10 +307,10 @@ with tabs[1]:
     ticket_df = pd.json_normalize(ticket_df)
 
     # Check if 'CallDate' exists before formatting
-      if "CallDate" in ticket_df.columns:
+    if "CallDate" in ticket_df.columns:
         ticket_df["CallDate"] = pd.to_datetime(ticket_df["CallDate"], errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
 
-      if "Notes.Last.Date.Created" in ticket_df.columns:
+    if "Notes.Last.Date.Created" in ticket_df.columns:
         ticket_df["Notes.Last.Date.Created"] = pd.to_datetime(ticket_df["Notes.Last.Date.Created"], errors="coerce").dt.strftime("%m/%d/%Y %I:%M %p")
 
 
